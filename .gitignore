@@ -18,8 +18,10 @@ tags
 /config/
 /config.status
 /configure
+/install-sh
 /libtool
 /m4/
 /Makefile.in
 /Makefile
+/missing
 
