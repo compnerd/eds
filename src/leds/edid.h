@@ -203,7 +203,7 @@ struct __attribute__ (( packed )) edid_standard_timing_descriptor {
 };
 
 
-struct __attribute__ (( packed )) edid_block0 {
+struct __attribute__ (( packed )) edid {
     /* header information */
     uint8_t header[8];
 
@@ -310,9 +310,9 @@ struct __attribute__ (( packed )) edid_block0 {
 };
 
 static inline uint16_t
-edid_gamma(const struct edid_block0 * const block0)
+edid_gamma(const struct edid * const edid)
 {
-    return (block0->display_transfer_characteristics + 100) / 100;
+    return (edid->display_transfer_characteristics + 100) / 100;
 }
 
 
@@ -324,24 +324,24 @@ struct __attribute__ (( packed )) edid_color_characteristics_data {
 };
 
 static inline struct edid_color_characteristics_data
-edid_color_characteristics(const struct edid_block0 * const block0)
+edid_color_characteristics(const struct edid * const edid)
 {
     const struct edid_color_characteristics_data characteristics = {
         .red = {
-            .x = (block0->red_x << 8) | block0->red_x_low,
-            .y = (block0->red_y << 8) | block0->red_y_low,
+            .x = (edid->red_x << 8) | edid->red_x_low,
+            .y = (edid->red_y << 8) | edid->red_y_low,
         },
         .green = {
-            .x = (block0->green_x << 8) | block0->green_x_low,
-            .y = (block0->green_y << 8) | block0->green_y_low,
+            .x = (edid->green_x << 8) | edid->green_x_low,
+            .y = (edid->green_y << 8) | edid->green_y_low,
         },
         .blue = {
-            .x = (block0->blue_x << 8) | block0->blue_x_low,
-            .y = (block0->blue_y << 8) | block0->blue_y_low,
+            .x = (edid->blue_x << 8) | edid->blue_x_low,
+            .y = (edid->blue_y << 8) | edid->blue_y_low,
         },
         .white = {
-            .x = (block0->white_x << 8) | block0->white_x_low,
-            .y = (block0->white_y << 8) | block0->white_y_low,
+            .x = (edid->white_x << 8) | edid->white_x_low,
+            .y = (edid->white_y << 8) | edid->white_y_low,
         },
     };
 
