@@ -18,10 +18,12 @@ tags
 /config/
 /config.status
 /configure
+/depcomp
 /install-sh
 /libtool
 /m4/
 /Makefile.in
 /Makefile
 /missing
+/src/examples/parse-edid/parse-edid
 

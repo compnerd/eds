@@ -7,7 +7,20 @@ AC_INIT(leds, 0.0.1, compnerd@compnerd.org)
 AM_INIT_AUTOMAKE([1.11.1 subdir-objects dist-bzip2])
 dnl }}}
 
+dnl {{{ options
+AC_ARG_WITH([examples],
+            AS_HELP_STRING([--with-examples], [build example program]),,
+            [with_examples=yes])
+AM_CONDITIONAL(WITH_EXAMPLES, [test x"$with_examples" = x"yes"])
+dnl }}}
+
 dnl {{{ basic toolchain checks
+AS_IF([test x"$with_examples" = x"yes"],
+      [
+          AC_PROG_CC_C99
+          AC_PROG_CC_C_O
+      ])
+
 AC_PROG_INSTALL
 dnl }}}
 
