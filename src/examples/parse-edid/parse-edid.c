@@ -198,7 +198,39 @@ dump_edid_block0(const struct edid_block0 * const block0)
 static void
 dump_edid_data(const uint8_t * const data)
 {
-    dump_edid_block0((struct edid_block0 *) data);
+    uint8_t i;
+    const struct edid_block0 * const block0 = (struct edid_block0 *) data;
+    const struct edid_extension * const extensions =
+        (struct edid_extension *) (data + sizeof(*block0));
+
+    dump_edid_block0(block0);
+
+    printf("\n");
+
+    for (i = 0; i < block0->extensions; i++)
+        switch (extensions[i].tag) {
+            case EDID_EXTENSION_TIMING:
+            case EDID_EXTENSION_CEA:
+            case EDID_EXTENSION_VTB:
+            case EDID_EXTENSION_EDID_2_0:
+            case EDID_EXTENSION_DI:
+            case EDID_EXTENSION_LS:
+            case EDID_EXTENSION_MI:
+            case EDID_EXTENSION_DTCDB_1:
+            case EDID_EXTENSION_DTCDB_2:
+            case EDID_EXTENSION_DTCDB_3:
+            case EDID_EXTENSION_DDDB:
+                printf("edid block %u is an extension block (type: %#04x)\n",
+                       i + 1, extensions[i].tag);
+                break;
+            case EDID_EXTENSION_BLOCK_MAP:
+                printf("edid block %u is a block map\n", i + 1);
+                break;
+            default:
+                printf("WARNING: Unknown extension %#04x at block %u\n",
+                       extensions[i].tag, i + 1);
+                break;
+        }
 }
 
 int
