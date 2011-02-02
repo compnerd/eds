@@ -192,7 +192,7 @@ dump_edid(const struct edid * const edid)
            ((uint8_t *) &edid->detailed_timings[3])[16],
            ((uint8_t *) &edid->detailed_timings[3])[17]);
     printf("%40s %02x\n", "extensions:", edid->extensions);
-    printf("%40s %02x\n", "checksum:", edid->extensions);
+    printf("%40s %02x\n", "checksum:", edid->checksum);
 }
 
 static void
