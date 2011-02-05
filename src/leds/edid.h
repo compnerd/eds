@@ -205,24 +205,19 @@ struct __attribute__ (( packed )) edid_standard_timing_descriptor {
 
 struct __attribute__ (( packed )) edid {
     /* header information */
-    uint8_t header[8];
+    uint8_t  header[8];
 
     /* vendor/product identification */
-    struct __attribute__ (( packed )) {
-        unsigned id2  : 5;
-        unsigned id1  : 5;
-        unsigned id0  : 5;
-        unsigned zero : 1;
-    } manufacturer;
+    uint16_t manufacturer;
 
-    uint8_t product[2];
-    uint8_t serial_number[4];
-    uint8_t manufacture_week;
-    uint8_t manufacture_year;
+    uint8_t  product[2];
+    uint8_t  serial_number[4];
+    uint8_t  manufacture_week;
+    uint8_t  manufacture_year;
 
     /* EDID version */
-    uint8_t version;
-    uint8_t revision;
+    uint8_t  version;
+    uint8_t  revision;
 
     /* basic display parameters and features */
     struct __attribute__ (( packed )) {
@@ -235,10 +230,10 @@ struct __attribute__ (( packed )) edid {
         unsigned digital                : 1;
     } video_input_definition;
 
-    uint8_t maximum_horizontal_image_size;     /* cm */
-    uint8_t maximum_vertical_image_size;       /* cm */
+    uint8_t  maximum_horizontal_image_size;    /* cm */
+    uint8_t  maximum_vertical_image_size;      /* cm */
 
-    uint8_t display_transfer_characteristics;  /* gamma = (value + 100) / 100 */
+    uint8_t  display_transfer_characteristics; /* gamma = (value + 100) / 100 */
 
     struct __attribute__ (( packed )) {
         unsigned default_gtf                    : 1; /* generalised timing formula */
@@ -261,14 +256,14 @@ struct __attribute__ (( packed )) edid {
     unsigned blue_y_low     : 2;
     unsigned blue_x_low     : 2;
 
-    uint8_t red_x;
-    uint8_t red_y;
-    uint8_t green_x;
-    uint8_t green_y;
-    uint8_t blue_x;
-    uint8_t blue_y;
-    uint8_t white_x;
-    uint8_t white_y;
+    uint8_t  red_x;
+    uint8_t  red_y;
+    uint8_t  green_x;
+    uint8_t  green_y;
+    uint8_t  blue_x;
+    uint8_t  blue_y;
+    uint8_t  white_x;
+    uint8_t  white_y;
 
     /* established timings */
     struct __attribute__ (( packed )) {
@@ -297,7 +292,7 @@ struct __attribute__ (( packed )) edid {
     } manufacturer_timings;
 
     /* standard timing id */
-    struct edid_standard_timing_descriptor standard_timing_id[8];
+    struct  edid_standard_timing_descriptor standard_timing_id[8];
 
     /* detailed timing */
     union {
@@ -305,9 +300,19 @@ struct __attribute__ (( packed )) edid {
         struct edid_detailed_timing_descriptor timing;
     } detailed_timings[4];
 
-    uint8_t extensions;
-    uint8_t checksum;
+    uint8_t  extensions;
+    uint8_t  checksum;
 };
+
+static inline void
+edid_manufacturer(const struct edid * const edid, char manufacturer[4])
+{
+    manufacturer[0] = '@' + ((edid->manufacturer & 0x007c) >> 2);
+    manufacturer[1] = '@' + (((edid->manufacturer & 0x0003) >> 00) << 3)
+                          | (((edid->manufacturer & 0xe000) >> 13) << 0);
+    manufacturer[2] = '@' + ((edid->manufacturer & 0x1f00) >> 8);
+    manufacturer[3] = '\0';
+}
 
 static inline uint16_t
 edid_gamma(const struct edid * const edid)
