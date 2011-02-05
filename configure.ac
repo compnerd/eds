@@ -15,12 +15,7 @@ AM_CONDITIONAL(WITH_EXAMPLES, [test x"$with_examples" = x"yes"])
 dnl }}}
 
 dnl {{{ basic toolchain checks
-AS_IF([test x"$with_examples" = x"yes"],
-      [
-          AC_PROG_CC_C99
-          AC_PROG_CC_C_O
-      ])
-
+AC_PROG_CC_C99
 AC_PROG_INSTALL
 dnl }}}
 
