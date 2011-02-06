@@ -72,6 +72,22 @@ enum edid_aspect_ratio {
     EDID_ASPECT_RATIO_16_9,
 };
 
+enum edid_signal_sync {
+    EDID_SIGNAL_SYNC_ANALOG_COMPOSITE,
+    EDID_SIGNAL_SYNC_BIPOLAR_ANALOG_COMPOSITE,
+    EDID_SIGNAL_SYNC_DIGITAL_COMPOSITE,
+    EDID_SIGNAL_SYNC_DIGITAL_SEPARATE,
+};
+
+enum edid_stereo_mode {
+    EDID_STEREO_MODE_FIELD_SEQUENTIAL_RIGHT   = 0x02,
+    EDID_STEREO_MODE_2_WAY_INTERLEAVED_RIGHT  = 0x03,
+    EDID_STEREO_MODE_FIELD_SEQUENTIAL_LEFT    = 0x04,
+    EDID_STEREO_MODE_2_WAY_INTERLEAVED_LEFT   = 0x05,
+    EDID_STEREO_MODE_4_WAY_INTERLEAVED        = 0x06,
+    EDID_STEREO_MODE_SIDE_BY_SIDE_INTERLEAVED = 0x07,
+};
+
 enum edid_monitor_descriptor_type {
     EDID_MONITOR_DESCRIPTOR_STANDARD_TIMING_IDENTIFIERS = 0xfa,
     EDID_MONITOR_DESCRIPTOR_COLOR_POINT                 = 0xfb,
@@ -116,10 +132,15 @@ struct __attribute__ (( packed )) edid_detailed_timing_descriptor {
     uint8_t  horizontal_border;
     uint8_t  vertical_border;
 
-    unsigned flags                          : 8;
+    unsigned stereo_mode_lo                 : 1;
+    unsigned signal_pulse_polarity          : 1; /* pulse on sync, composite/horizontal polarity */
+    unsigned signal_serration_polarity      : 1; /* serrate on sync, vertical polarity */
+    unsigned signal_sync                    : 2;
+    unsigned stereo_mode_hi                 : 2;
+    unsigned interlaced                     : 1;
 };
 
-static inline uint16_t
+static inline uint32_t
 edid_timing_pixel_clock(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return dtb->pixel_clock * 10000;
@@ -185,6 +206,12 @@ edid_timing_vertical_image_size(const struct edid_detailed_timing_descriptor * c
     return (dtb->vertical_image_size_hi << 8) | dtb->vertical_image_size_lo;
 }
 
+static inline uint8_t
+edid_timing_stereo_mode(const struct edid_detailed_timing_descriptor * const dtb)
+{
+    return (dtb->stereo_mode_hi << 2 | dtb->stereo_mode_lo);
+}
+
 
 struct __attribute__ (( packed )) edid_monitor_descriptor {
     uint16_t flag0;
@@ -213,27 +240,34 @@ struct __attribute__ (( packed )) edid {
     uint8_t  product[2];
     uint8_t  serial_number[4];
     uint8_t  manufacture_week;
-    uint8_t  manufacture_year;
+    uint8_t  manufacture_year;                  /* = value + 1990 */
 
     /* EDID version */
     uint8_t  version;
     uint8_t  revision;
 
     /* basic display parameters and features */
-    struct __attribute__ (( packed )) {
-        unsigned dfp_1x_vsync_serration : 1;   /* VESA DFP 1.x */
-        unsigned green_video_sync       : 1;
-        unsigned composite_sync         : 1;
-        unsigned separate_sync          : 1;
-        unsigned blank_to_black_setup   : 1;
-        unsigned signal_level_standard  : 2;
-        unsigned digital                : 1;
+    union {
+        struct __attribute__ (( packed )) {
+            unsigned dfp_1x                 : 1;    /* VESA DFP 1.x */
+            unsigned                        : 6;
+            unsigned digital                : 1;
+        } digital;
+        struct __attribute__ (( packed )) {
+            unsigned vsync_serration        : 1;
+            unsigned green_video_sync       : 1;
+            unsigned composite_sync         : 1;
+            unsigned separate_sync          : 1;
+            unsigned blank_to_black_setup   : 1;
+            unsigned signal_level_standard  : 2;
+            unsigned digital                : 1;
+        } analog;
     } video_input_definition;
 
-    uint8_t  maximum_horizontal_image_size;    /* cm */
-    uint8_t  maximum_vertical_image_size;      /* cm */
+    uint8_t  maximum_horizontal_image_size;     /* cm */
+    uint8_t  maximum_vertical_image_size;       /* cm */
 
-    uint8_t  display_transfer_characteristics; /* gamma = (value + 100) / 100 */
+    uint8_t  display_transfer_characteristics;  /* gamma = (value + 100) / 100 */
 
     struct __attribute__ (( packed )) {
         unsigned default_gtf                    : 1; /* generalised timing formula */
@@ -314,10 +348,10 @@ edid_manufacturer(const struct edid * const edid, char manufacturer[4])
     manufacturer[3] = '\0';
 }
 
-static inline uint16_t
+static inline double
 edid_gamma(const struct edid * const edid)
 {
-    return (edid->display_transfer_characteristics + 100) / 100;
+    return (edid->display_transfer_characteristics + 100) / 100.0;
 }
 
 
@@ -333,20 +367,20 @@ edid_color_characteristics(const struct edid * const edid)
 {
     const struct edid_color_characteristics_data characteristics = {
         .red = {
-            .x = (edid->red_x << 8) | edid->red_x_low,
-            .y = (edid->red_y << 8) | edid->red_y_low,
+            .x = (edid->red_x << 2) | edid->red_x_low,
+            .y = (edid->red_y << 2) | edid->red_y_low,
         },
         .green = {
-            .x = (edid->green_x << 8) | edid->green_x_low,
-            .y = (edid->green_y << 8) | edid->green_y_low,
+            .x = (edid->green_x << 2) | edid->green_x_low,
+            .y = (edid->green_y << 2) | edid->green_y_low,
         },
         .blue = {
-            .x = (edid->blue_x << 8) | edid->blue_x_low,
-            .y = (edid->blue_y << 8) | edid->blue_y_low,
+            .x = (edid->blue_x << 2) | edid->blue_x_low,
+            .y = (edid->blue_y << 2) | edid->blue_y_low,
         },
         .white = {
-            .x = (edid->white_x << 8) | edid->white_x_low,
-            .y = (edid->white_y << 8) | edid->white_y_low,
+            .x = (edid->white_x << 2) | edid->white_x_low,
+            .y = (edid->white_y << 2) | edid->white_y_low,
         },
     };
 
