@@ -20,6 +20,7 @@ AC_PROG_INSTALL
 dnl }}}
 
 dnl {{{ library checks
+AC_CHECK_LIB([m], [sqrt])
 dnl }}}
 
 dnl {{{ output
