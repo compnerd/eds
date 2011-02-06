@@ -593,6 +593,162 @@ dump_cea_timing_block(const struct edid_extension * const ext)
 }
 
 static void
+parse_cea_timing_block(const struct edid_extension * const ext)
+{
+    const struct edid_detailed_timing_descriptor *dtd = NULL;
+    const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
+    const uint8_t offset = offsetof(struct cea861_timing_block, data);
+    uint8_t index = 0, i;
+
+    printf("CEA-861 Information\n");
+    printf("  Revision number.......... %u\n",
+           ctb->revision);
+    printf("  IT underscan............. %supported\n",
+           ctb->underscan_supported ? "S" : "Not s");
+    printf("  Basic audio.............. %supported\n",
+           ctb->basic_audio_supported ? "S" : "Not s");
+    printf("  YCbCr 4:4:4.............. %supported\n",
+           ctb->yuv_444_supported ? "S" : "Not s");
+    printf("  YCbCr 4:2:2.............. %supported\n",
+           ctb->yuv_422_supported ? "S" : "Not s");
+    printf("  Native formats........... %u\n",
+           ctb->native_dtds);
+
+    dtd = (struct edid_detailed_timing_descriptor *) ((uint8_t *) ctb + ctb->dtd_offset);
+    for (i = 0; dtd->pixel_clock; i++, dtd++) {
+        char *string;
+
+        string = _edid_timing_string(dtd);
+        printf("  Detailed timing #%u....... %s\n", i + 1, string);
+        free(string);
+
+        string = _edid_mode_string(dtd);
+        printf("    Modeline............... %s\n", string);
+        free(string);
+    }
+
+    printf("\n");
+
+    do {
+        const struct cea861_data_block_header * const header =
+            (struct cea861_data_block_header *) &ctb->data[index];
+
+        switch (header->tag) {
+        case CEA861_DATA_BLOCK_TYPE_AUDIO:
+            {
+                const struct cea861_audio_data_block * const adb =
+                    (struct cea861_audio_data_block *) header;
+
+                printf("CE audio data (formats supported)\n");
+                for (i = 0; i < header->length / sizeof(*adb->sad); i++) {
+                    const struct cea861_short_audio_descriptor * const sad =
+                        (struct cea861_short_audio_descriptor *) &adb->sad[i];
+
+                    switch (sad->audio_format) {
+                    case CEA861_AUDIO_FORMAT_LPCM:
+                        printf("  LPCM    %u-channel, %u-bit %s%s%s%s%s%s%s\b kHz\n",
+                               sad->channels + 1,
+                               sad->flags.lpcm.bitrate_16_bit ? 16 :
+                                sad->flags.lpcm.bitrate_20_bit ? 20 :
+                                 sad->flags.lpcm.bitrate_24_bit ? 24 : 0,
+                               sad->sample_rate_32_kHz ? "32/" : "",
+                               sad->sample_rate_44_1_kHz ? "44.1/" : "",
+                               sad->sample_rate_48_kHz ? "48/" : "",
+                               sad->sample_rate_88_2_kHz ? "88.2/" : "",
+                               sad->sample_rate_96_kHz ? "96/" : "",
+                               sad->sample_rate_176_4_kHz ? "176.4/" : "",
+                               sad->sample_rate_192_kHz ? "192/" : "");
+                        break;
+                    default:
+                        fprintf(stderr, "unknown audio format 0x%02x\n",
+                                sad->audio_format);
+                        break;
+                    }
+                }
+            }
+            break;
+        case CEA861_DATA_BLOCK_TYPE_VIDEO:
+            {
+                const struct cea861_video_data_block * const vdb =
+                    (struct cea861_video_data_block *) header;
+
+                printf("CE video identifiers (VICs) - timing/formats supported\n");
+                for (i = 0; i < header->length; i++) {
+                    const struct cea861_timing * const timing =
+                        &cea861_timings[vdb->svd[i].video_identification_code];
+
+                    printf(" %s CEA Mode %02u: %4u x %4u%c @ %.fHz\n",
+                           vdb->svd[i].native ? "*" : " ",
+                           vdb->svd[i].video_identification_code,
+                           timing->hactive, timing->vactive,
+                           (timing->mode == INTERLACED) ? 'i' : 'p',
+                           timing->vfreq);
+                }
+            }
+            break;
+        case CEA861_DATA_BLOCK_TYPE_VENDOR_SPECIFIC:
+            {
+                const struct cea861_vendor_specific_data_block * const vsdb =
+                    (struct cea861_vendor_specific_data_block *) header;
+
+                printf("CEA vendor specific data (VSDB)\n");
+                printf("  IEEE registration number. 0x%02X%02X%02X\n",
+                       vsdb->ieee_registration[2], vsdb->ieee_registration[1],
+                       vsdb->ieee_registration[0]);
+            }
+            break;
+        case CEA861_DATA_BLOCK_TYPE_SPEAKER_ALLOCATION:
+            {
+                const struct cea861_speaker_allocation_data_block * const sadb =
+                    (struct cea861_speaker_allocation_data_block *) header;
+                const struct cea861_speaker_allocation * const sa =
+                    &sadb->payload;
+                const uint8_t * const channel_configuration = (uint8_t *) sa;
+
+                printf("CEA speaker allocation data\n");
+                printf("  Channel configuration.... %u.%u\n",
+                       (__builtin_popcountll(channel_configuration[0] & 0xe9) << 1) +
+                       (__builtin_popcountll(channel_configuration[0] & 0x14) << 0) +
+                       (__builtin_popcountll(channel_configuration[1] & 0x01) << 1) +
+                       (__builtin_popcountll(channel_configuration[1] & 0x06) << 0),
+                       (channel_configuration[0] & 0x02));
+                printf("  Front left/right......... %s\n",
+                       sa->front_left_right ? "Yes" : "No");
+                printf("  Front LFE................ %s\n",
+                       sa->front_lfe ? "Yes" : "No");
+                printf("  Front center............. %s\n",
+                       sa->front_center ? "Yes" : "No");
+                printf("  Rear left/right.......... %s\n",
+                       sa->rear_left_right ? "Yes" : "No");
+                printf("  Rear center.............. %s\n",
+                       sa->rear_center ? "Yes" : "No");
+                printf("  Front left/right center.. %s\n",
+                       sa->front_left_right_center ? "Yes" : "No");
+                printf("  Rear left/right center... %s\n",
+                       sa->rear_left_right_center ? "Yes" : "No");
+                printf("  Front left/right wide.... %s\n",
+                       sa->front_left_right_wide ? "Yes" : "No");
+                printf("  Front left/right high.... %s\n",
+                       sa->front_left_right_high ? "Yes" : "No");
+                printf("  Top center............... %s\n",
+                       sa->top_center ? "Yes" : "No");
+                printf("  Front center high........ %s\n",
+                       sa->front_center_high ? "Yes" : "No");
+            }
+            break;
+        default:
+            fprintf(stderr, "unknown CEA-861 data block type 0x%02x\n",
+                    header->tag);
+            break;
+        }
+
+        printf("\n");
+
+        index = index + header->length + sizeof(*header);
+    } while (index < ctb->dtd_offset - offset);
+}
+
+static void
 dump_edid_data(const uint8_t * const data)
 {
     uint8_t i;
@@ -614,6 +770,8 @@ dump_edid_data(const uint8_t * const data)
             break;
         case EDID_EXTENSION_CEA:
             dump_cea_timing_block(&extensions[i]);
+            printf("\n");
+            parse_cea_timing_block(&extensions[i]);
             break;
         case EDID_EXTENSION_VTB:
         case EDID_EXTENSION_EDID_2_0:
