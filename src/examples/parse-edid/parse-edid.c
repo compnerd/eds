@@ -33,10 +33,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <leds/edid.h>
+#include <leds/cea861.h>
 
 #define CM_2_MM(cm)                             ((cm) * 10)
 #define CM_2_IN(cm)                             ((cm) * 0.3937)
@@ -548,6 +550,49 @@ parse_edid(const struct edid * const edid)
 }
 
 static void
+dump_cea_timing_block(const struct edid_extension * const ext)
+{
+    const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
+    const uint8_t offset = offsetof(struct cea861_timing_block, data);
+    const struct edid_detailed_timing_descriptor *dtd = NULL;
+    uint8_t i;
+
+    printf("%40s %02x %02x %02x %02x\n",
+           "cea extension header:",
+           ctb->tag, ctb->revision, ctb->dtd_offset, ext->extension_data[1]);
+
+    printf("%40s ", "data block collection:");
+    for (i = 0; i < ctb->dtd_offset - offset; i++) {
+        if (((i * 3) % 78) == 39)
+            printf("\n%40s ", "");
+        printf("%02x ", ctb->data[i]);
+    }
+    printf("\n");
+
+    dtd = (struct edid_detailed_timing_descriptor *) ((uint8_t *) ctb + ctb->dtd_offset);
+    for (i = 0; dtd->pixel_clock; i++, dtd++) {
+        const uint8_t * const data = (uint8_t *) dtd;
+
+        printf("%35s %03u: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               "detailed timing descriptor", i,
+               data[0x00], data[0x01], data[0x02], data[0x03], data[0x04],
+               data[0x05], data[0x06], data[0x07], data[0x08], data[0x09],
+               data[0x0a], data[0x0b], data[0x0c], data[0x0d], data[0x0e],
+               data[0x0f], data[0x10], data[0x11]);
+    }
+
+    printf("%40s ", "padding:");
+    for (i = sizeof(*dtd) * i + ctb->dtd_offset; i < sizeof(ctb->data); i++) {
+        if (((i * 3) % 78) == 39)
+            printf("\n%40s ", "");
+        printf("%02x ", ctb->data[i]);
+    }
+    printf("\n");
+
+    printf("%40s %02x", "checksum:", ctb->checksum);
+}
+
+static void
 dump_edid_data(const uint8_t * const data)
 {
     uint8_t i;
@@ -568,6 +613,8 @@ dump_edid_data(const uint8_t * const data)
                    i + 1, extensions[i].tag);
             break;
         case EDID_EXTENSION_CEA:
+            dump_cea_timing_block(&extensions[i]);
+            break;
         case EDID_EXTENSION_VTB:
         case EDID_EXTENSION_EDID_2_0:
         case EDID_EXTENSION_DI:
