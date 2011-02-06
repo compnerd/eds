@@ -347,7 +347,7 @@ parse_edid(const struct edid * const edid)
     printf("Monitor\n");
 
     printf("  Model name............... %s\n",
-           monitor_model_name);
+           *monitor_model_name ? monitor_model_name : "n/a");
 
     printf("  Manufacturer............. %s\n",
            manufacturer);
@@ -363,7 +363,7 @@ parse_edid(const struct edid * const edid)
 #endif
 
     printf("  Serial number............ %s\n",
-           monitor_serial_number);
+           *monitor_serial_number ? monitor_serial_number : "n/a");
 
     printf("  Manufacture date......... %u, ISO week %u\n",
            edid->manufacture_year + 1990, edid->manufacture_week);
