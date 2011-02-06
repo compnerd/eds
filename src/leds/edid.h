@@ -41,6 +41,7 @@
 
 
 static const uint8_t EDID_HEADER[] = { 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00 };
+static const uint8_t EDID_STANDARD_TIMING_DESCRIPTOR_INVALID[] = { 0x01, 0x01 };
 
 
 enum edid_extension_type {
@@ -80,12 +81,14 @@ enum edid_signal_sync {
 };
 
 enum edid_stereo_mode {
-    EDID_STEREO_MODE_FIELD_SEQUENTIAL_RIGHT   = 0x02,
-    EDID_STEREO_MODE_2_WAY_INTERLEAVED_RIGHT  = 0x03,
-    EDID_STEREO_MODE_FIELD_SEQUENTIAL_LEFT    = 0x04,
-    EDID_STEREO_MODE_2_WAY_INTERLEAVED_LEFT   = 0x05,
-    EDID_STEREO_MODE_4_WAY_INTERLEAVED        = 0x06,
-    EDID_STEREO_MODE_SIDE_BY_SIDE_INTERLEAVED = 0x07,
+    EDID_STEREO_MODE_NONE,
+    EDID_STEREO_MODE_RESERVED,
+    EDID_STEREO_MODE_FIELD_SEQUENTIAL_RIGHT,
+    EDID_STEREO_MODE_2_WAY_INTERLEAVED_RIGHT,
+    EDID_STEREO_MODE_FIELD_SEQUENTIAL_LEFT,
+    EDID_STEREO_MODE_2_WAY_INTERLEAVED_LEFT,
+    EDID_STEREO_MODE_4_WAY_INTERLEAVED,
+    EDID_STEREO_MODE_SIDE_BY_SIDE_INTERLEAVED,
 };
 
 enum edid_monitor_descriptor_type {
@@ -94,6 +97,11 @@ enum edid_monitor_descriptor_type {
     EDID_MONITOR_DESCRIPTOR_MONITOR_NAME                = 0xfc,
     EDID_MONITOR_DESCRIPTOR_MONITOR_RANGE_LIMITS        = 0xfd,
     EDID_MONITOR_DESCRIPTOR_MONITOR_SERIAL_NUMBER       = 0xff,
+};
+
+enum edid_secondary_timing_support {
+    EDID_SECONDARY_TIMING_NOT_SUPPORTED,
+    EDID_SECONDARY_TIMING_GFT           = 0x02,
 };
 
 
@@ -219,6 +227,23 @@ struct __attribute__ (( packed )) edid_monitor_descriptor {
     uint8_t  tag;
     uint8_t  flag2;
     uint8_t  data[13];
+};
+
+struct __attribute__ (( packed )) edid_monitor_range_limits {
+    uint8_t  minimum_vertical_rate;             /* Hz */
+    uint8_t  maximum_vertical_rate;             /* Hz */
+    uint8_t  minimum_horizontal_rate;           /* kHz */
+    uint8_t  maximum_horizontal_rate;           /* kHz */
+    uint8_t  maximum_supported_pixel_clock;     /* = (value * 10) Mhz (round to 10 MHz) */
+
+    /* secondary timing formula */
+    uint8_t  secondary_timing_support;
+    uint8_t  reserved;
+    uint8_t  secondary_curve_start_frequency;   /* horizontal frequency / 2 kHz */
+    uint8_t  c;                                 /* = (value >> 1) */
+    uint16_t m;
+    uint8_t  k;
+    uint8_t  j;                                 /* = (value >> 1) */
 };
 
 
