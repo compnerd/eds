@@ -305,8 +305,7 @@ parse_edid(const struct edid * const edid)
     const uint8_t hlen = edid->maximum_horizontal_image_size;
     uint8_t i;
 
-    static const char * const display_type[] =
-    {
+    static const char * const display_type[] = {
         [EDID_DISPLAY_TYPE_MONOCHROME] = "Monochrome or greyscale",
         [EDID_DISPLAY_TYPE_RGB]        = "sRGB colour",
         [EDID_DISPLAY_TYPE_NON_RGB]    = "Non-sRGB colour",
@@ -562,30 +561,34 @@ dump_edid_data(const uint8_t * const data)
 
     printf("\n");
 
-    for (i = 0; i < edid->extensions; i++)
+    for (i = 0; i < edid->extensions; i++) {
         switch (extensions[i].tag) {
-            case EDID_EXTENSION_TIMING:
-            case EDID_EXTENSION_CEA:
-            case EDID_EXTENSION_VTB:
-            case EDID_EXTENSION_EDID_2_0:
-            case EDID_EXTENSION_DI:
-            case EDID_EXTENSION_LS:
-            case EDID_EXTENSION_MI:
-            case EDID_EXTENSION_DTCDB_1:
-            case EDID_EXTENSION_DTCDB_2:
-            case EDID_EXTENSION_DTCDB_3:
-            case EDID_EXTENSION_DDDB:
-                printf("edid block %u is an extension block (type: %#04x)\n",
-                       i + 1, extensions[i].tag);
-                break;
-            case EDID_EXTENSION_BLOCK_MAP:
-                printf("edid block %u is a block map\n", i + 1);
-                break;
-            default:
-                printf("WARNING: Unknown extension %#04x at block %u\n",
-                       extensions[i].tag, i + 1);
-                break;
+        case EDID_EXTENSION_TIMING:
+            printf("edid block %u is an extension block (type: %#04x)\n",
+                   i + 1, extensions[i].tag);
+            break;
+        case EDID_EXTENSION_CEA:
+        case EDID_EXTENSION_VTB:
+        case EDID_EXTENSION_EDID_2_0:
+        case EDID_EXTENSION_DI:
+        case EDID_EXTENSION_LS:
+        case EDID_EXTENSION_MI:
+        case EDID_EXTENSION_DTCDB_1:
+        case EDID_EXTENSION_DTCDB_2:
+        case EDID_EXTENSION_DTCDB_3:
+        case EDID_EXTENSION_DDDB:
+            printf("edid block %u is an extension block (type: %#04x)\n",
+                   i + 1, extensions[i].tag);
+            break;
+        case EDID_EXTENSION_BLOCK_MAP:
+            printf("edid block %u is a block map\n", i + 1);
+            break;
+        default:
+            printf("WARNING: Unknown extension %#04x at block %u\n",
+                   extensions[i].tag, i + 1);
+            break;
         }
+    }
 }
 
 int
