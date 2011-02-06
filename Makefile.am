@@ -10,7 +10,8 @@ src_examples_parse_edid_parse_edid_CFLAGS = -I $(top_srcdir)/src \
 endif
 
 includedir = @includedir@/leds
-include_HEADERS = src/leds/edid.h \
+include_HEADERS = src/leds/cea861.h \
+		  src/leds/edid.h   \
 		  $(NULL)
 
 MAINTAINERCLEANFILES = aclocal.m4 configure depcomp install-sh Makefile.in missing
