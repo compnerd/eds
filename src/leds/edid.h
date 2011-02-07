@@ -96,6 +96,7 @@ enum edid_monitor_descriptor_type {
     EDID_MONITOR_DESCRIPTOR_COLOR_POINT                 = 0xfb,
     EDID_MONITOR_DESCRIPTOR_MONITOR_NAME                = 0xfc,
     EDID_MONITOR_DESCRIPTOR_MONITOR_RANGE_LIMITS        = 0xfd,
+    EDID_MONITOR_DESCRIPTOR_ASCII_STRING                = 0xfe,
     EDID_MONITOR_DESCRIPTOR_MONITOR_SERIAL_NUMBER       = 0xff,
 };
 

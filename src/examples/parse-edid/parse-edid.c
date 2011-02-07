@@ -326,6 +326,10 @@ parse_edid(const struct edid * const edid)
             continue;
 
         switch (desc->tag) {
+        case EDID_MONITOR_DESCRIPTOR_ASCII_STRING:
+            /* This is an arbitrary string, unless we can identify it, just
+               silently ignore it. */
+            break;
         case EDID_MONITOR_DESCRIPTOR_MONITOR_NAME:
             strncpy(monitor_model_name, (char *) desc->data,
                     sizeof(monitor_model_name) - 1);
