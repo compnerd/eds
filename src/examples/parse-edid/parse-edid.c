@@ -38,6 +38,7 @@
 #include <string.h>
 
 #include <leds/edid.h>
+#include <leds/hdmi.h>
 #include <leds/cea861.h>
 
 #define CM_2_MM(cm)                             ((cm) * 10)
@@ -694,11 +695,25 @@ parse_cea_timing_block(const struct edid_extension * const ext)
             {
                 const struct cea861_vendor_specific_data_block * const vsdb =
                     (struct cea861_vendor_specific_data_block *) header;
+                const uint8_t oui[] = { vsdb->ieee_registration[2],
+                                        vsdb->ieee_registration[1],
+                                        vsdb->ieee_registration[0] };
 
                 printf("CEA vendor specific data (VSDB)\n");
                 printf("  IEEE registration number. 0x%02X%02X%02X\n",
                        vsdb->ieee_registration[2], vsdb->ieee_registration[1],
                        vsdb->ieee_registration[0]);
+
+                if (!memcmp(oui, HDMI_OUI, sizeof(HDMI_OUI))) {
+                    const struct hdmi_vendor_specific_data_block * const hdmi =
+                        (struct hdmi_vendor_specific_data_block *) vsdb;
+
+                    printf("  Port configuration....... %u.%u.%u.%u\n",
+                           hdmi->port_configuration_a,
+                           hdmi->port_configuration_b,
+                           hdmi->port_configuration_c,
+                           hdmi->port_configuration_d);
+                }
             }
             break;
         case CEA861_DATA_BLOCK_TYPE_SPEAKER_ALLOCATION:
