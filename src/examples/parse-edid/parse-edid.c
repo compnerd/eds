@@ -913,6 +913,8 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+    fclose(edid);
+
     dump_edid_data(buffer);
 
     free(buffer);
