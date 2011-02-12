@@ -668,6 +668,18 @@ parse_cea_timing_block(const struct edid_extension * const ext)
                                sad->sample_rate_176_4_kHz ? "176.4/" : "",
                                sad->sample_rate_192_kHz ? "192/" : "");
                         break;
+                    case CEA861_AUDIO_FORMAT_AC_3:
+                        printf("  AC-3    %u-channel, %4uk max. bit rate at %s%s%s%s%s%s%s\b kHz\n",
+                               sad->channels + 1,
+                               (sad->flags.maximum_bit_rate << 3),
+                               sad->sample_rate_32_kHz ? "32/" : "",
+                               sad->sample_rate_44_1_kHz ? "44.1/" : "",
+                               sad->sample_rate_48_kHz ? "48/" : "",
+                               sad->sample_rate_88_2_kHz ? "88.2/" : "",
+                               sad->sample_rate_96_kHz ? "96/" : "",
+                               sad->sample_rate_176_4_kHz ? "176.4/" : "",
+                               sad->sample_rate_192_kHz ? "192/" : "");
+                        break;
                     default:
                         fprintf(stderr, "unknown audio format 0x%02x\n",
                                 sad->audio_format);
