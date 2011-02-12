@@ -730,37 +730,45 @@ parse_cea_timing_block(const struct edid_extension * const ext)
                            hdmi->port_configuration_c,
                            hdmi->port_configuration_d);
 
-                    printf("  Supports AI (ACP, ISRC).. %s\n",
-                           hdmi->audio_info_frame ? "Yes" : "No");
-                    printf("  Supports 48bpp........... %s\n",
-                           hdmi->colour_depth_48_bit ? "Yes" : "No");
-                    printf("  Supports 36bpp........... %s\n",
-                           hdmi->colour_depth_36_bit ? "Yes" : "No");
-                    printf("  Supports 30bpp........... %s\n",
-                           hdmi->colour_depth_30_bit ? "Yes" : "No");
-                    printf("  Supports YCbCr 4:4:4..... %s\n",
-                           hdmi->yuv_444_supported ? "Yes" : "No");
-                    printf("  Supports dual-link DVI... %s\n",
-                           hdmi->dvi_dual_link ? "Yes" : "No");
-
-                    if (hdmi->max_tmds_clock)
-                        printf("  Maximum TMDS clock....... %uMHz\n",
-                               hdmi->max_tmds_clock * 5);
-
-                    if (hdmi->latency_fields) {
-                        printf("  Video latency %s........ %ums\n",
-                               hdmi->interlaced_latency_fields ? "(p)" : "...",
-                               (hdmi->video_latency - 1) << 1);
-                        printf("  Audio latency %s........ %ums\n",
-                               hdmi->interlaced_latency_fields ? "(p)" : "...",
-                               (hdmi->audio_latency - 1) << 1);
+                    if (header->length >= HDMI_VSDB_EXTENSION_FLAGS_OFFSET) {
+                        printf("  Supports AI (ACP, ISRC).. %s\n",
+                               hdmi->audio_info_frame ? "Yes" : "No");
+                        printf("  Supports 48bpp........... %s\n",
+                               hdmi->colour_depth_48_bit ? "Yes" : "No");
+                        printf("  Supports 36bpp........... %s\n",
+                               hdmi->colour_depth_36_bit ? "Yes" : "No");
+                        printf("  Supports 30bpp........... %s\n",
+                               hdmi->colour_depth_30_bit ? "Yes" : "No");
+                        printf("  Supports YCbCr 4:4:4..... %s\n",
+                               hdmi->yuv_444_supported ? "Yes" : "No");
+                        printf("  Supports dual-link DVI... %s\n",
+                               hdmi->dvi_dual_link ? "Yes" : "No");
                     }
 
-                    if (hdmi->interlaced_latency_fields) {
-                        printf("  Video latency (i)........ %ums\n",
-                               hdmi->interlaced_video_latency);
-                        printf("  Audio latency (i)........ %ums\n",
-                               hdmi->interlaced_audio_latency);
+                    if (header->length >= HDMI_VSDB_MAX_TMDS_OFFSET) {
+                        if (hdmi->max_tmds_clock)
+                            printf("  Maximum TMDS clock....... %uMHz\n",
+                                   hdmi->max_tmds_clock * 5);
+                        else
+                            printf("  Maximum TMDS clock....... n/a\n");
+                    }
+
+                    if (header->length >= HDMI_VSDB_LATENCY_FIELDS_OFFSET) {
+                        if (hdmi->latency_fields) {
+                            printf("  Video latency %s........ %ums\n",
+                                   hdmi->interlaced_latency_fields ? "(p)" : "...",
+                                   (hdmi->video_latency - 1) << 1);
+                            printf("  Audio latency %s........ %ums\n",
+                                   hdmi->interlaced_latency_fields ? "(p)" : "...",
+                                   (hdmi->audio_latency - 1) << 1);
+                        }
+
+                        if (hdmi->interlaced_latency_fields) {
+                            printf("  Video latency (i)........ %ums\n",
+                                   hdmi->interlaced_video_latency);
+                            printf("  Audio latency (i)........ %ums\n",
+                                   hdmi->interlaced_audio_latency);
+                        }
                     }
                 }
             }

@@ -33,6 +33,11 @@
 
 #include <cea861.h>
 
+/*! \todo figure out a better way to determine the offsets */
+#define HDMI_VSDB_EXTENSION_FLAGS_OFFSET        (0x06)
+#define HDMI_VSDB_MAX_TMDS_OFFSET               (0x07)
+#define HDMI_VSDB_LATENCY_FIELDS_OFFSET         (0x08)
+
 static const uint8_t HDMI_OUI[]                 = { 0x00, 0x0C, 0x03 };
 
 struct __attribute__ (( packed )) hdmi_vendor_specific_data_block {
