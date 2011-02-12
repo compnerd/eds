@@ -38,7 +38,7 @@ static const uint8_t HDMI_OUI[]                 = { 0x00, 0x0C, 0x03 };
 struct __attribute__ (( packed )) hdmi_vendor_specific_data_block {
     struct cea861_data_block_header header;
 
-    uint8_t  ieee_registration_id[3];
+    uint8_t  ieee_registration_id[3];           /* LSB */
 
     unsigned port_configuration_b      : 4;
     unsigned port_configuration_a      : 4;
@@ -54,14 +54,14 @@ struct __attribute__ (( packed )) hdmi_vendor_specific_data_block {
     unsigned colour_depth_48_bit       : 1;
     unsigned audio_info_frame          : 1;
 
-    uint8_t  max_tmds_clock;
+    uint8_t  max_tmds_clock;                    /* = value * 5 */
 
     unsigned                           : 6;
     unsigned interlaced_latency_fields : 1;
     unsigned latency_fields            : 1;
 
-    uint8_t  video_latency;
-    uint8_t  audio_latency;
+    uint8_t  video_latency;                     /* = (value - 1) * 2 */
+    uint8_t  audio_latency;                     /* = (value - 1) * 2 */
     uint8_t  interlaced_video_latency;
     uint8_t  interlaced_audio_latency;
 
