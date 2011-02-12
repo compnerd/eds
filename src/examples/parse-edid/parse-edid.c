@@ -655,11 +655,11 @@ parse_cea_timing_block(const struct edid_extension * const ext)
 
                     switch (sad->audio_format) {
                     case CEA861_AUDIO_FORMAT_LPCM:
-                        printf("  LPCM    %u-channel, %u-bit %s%s%s%s%s%s%s\b kHz\n",
+                        printf("  LPCM    %u-channel, %s%s%s\b bit depths at %s%s%s%s%s%s%s\b kHz\n",
                                sad->channels + 1,
-                               sad->flags.lpcm.bitrate_16_bit ? 16 :
-                                sad->flags.lpcm.bitrate_20_bit ? 20 :
-                                 sad->flags.lpcm.bitrate_24_bit ? 24 : 0,
+                               sad->flags.lpcm.bitrate_16_bit ? "16/" : "",
+                               sad->flags.lpcm.bitrate_20_bit ? "20/" : "",
+                               sad->flags.lpcm.bitrate_24_bit ? "24/" : "",
                                sad->sample_rate_32_kHz ? "32/" : "",
                                sad->sample_rate_44_1_kHz ? "44.1/" : "",
                                sad->sample_rate_48_kHz ? "48/" : "",
