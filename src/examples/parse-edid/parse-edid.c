@@ -907,9 +907,9 @@ main(int argc, char **argv)
     }
 
     if (fread(buffer, EDID_BLOCK_SIZE, blocks, edid) != blocks) {
+        perror("fread");
         free(buffer);
         fclose(edid);
-        perror("fread");
         return EXIT_FAILURE;
     }
 
