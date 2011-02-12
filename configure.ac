@@ -26,5 +26,11 @@ dnl }}}
 dnl {{{ output
 AM_SILENT_RULES(yes)
 AC_OUTPUT(Makefile)
+
+echo "
+Configuration:
+    prefix:             ${prefix}
+    with examples:      ${with_examples}
+"
 dnl }}}
 
