@@ -1,4 +1,4 @@
-/* vim: set et fde fdm=syntax ts=4 sts=4 sw=4 : */
+/* vim: set et fde fdm=syntax ft=c.doxygen ts=4 sts=4 sw=4 : */
 /*
  * Copyright © 2011 Saleem Abdulrasool <compnerd@compnerd.org>.
  * All rights reserved.
