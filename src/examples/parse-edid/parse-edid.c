@@ -399,10 +399,14 @@ parse_edid(const struct edid * const edid)
            CM_2_MM(hlen), CM_2_MM(vlen),
            CM_2_IN(sqrt(hlen * hlen + vlen * vlen)));
 
-    printf("  Power management......... %s%s%s\n",
-           edid->feature_support.active_off ? "Active off " : "",
-           edid->feature_support.suspend ? "Suspend " : "",
-           edid->feature_support.standby ? "Standby " : "");
+    printf("  Power management......... %s%s%s%s\n",
+           edid->feature_support.active_off ? "Active off, " : "",
+           edid->feature_support.suspend ? "Suspend, " : "",
+           edid->feature_support.standby ? "Standby, " : "",
+
+           (edid->feature_support.active_off ||
+            edid->feature_support.suspend    ||
+            edid->feature_support.standby) ? "\b\b  " : "n/a");
 
     printf("  Extension blocks......... %u\n",
            edid->extensions);
