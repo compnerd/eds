@@ -16,5 +16,12 @@ include_HEADERS = src/leds/cea861.h \
 		  src/leds/hdmi.h   \
 		  $(NULL)
 
-MAINTAINERCLEANFILES = aclocal.m4 configure depcomp install-sh Makefile.in missing
+MAINTAINERCLEANFILES = aclocal.m4       \
+		       configure        \
+		       depcomp          \
+		       install-sh       \
+		       libtool          \
+		       Makefile.in      \
+		       missing          \
+		       $(NULL)
 
