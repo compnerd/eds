@@ -97,13 +97,12 @@ struct __attribute__ (( packed )) cea861_short_audio_descriptor {
     unsigned sample_rate_192_kHz   : 1;
     unsigned                       : 1;
 
-    union
-    {
+    union {
         struct __attribute__ (( packed )) {
             unsigned bitrate_16_bit : 1;
             unsigned bitrate_20_bit : 1;
             unsigned bitrate_24_bit : 1;
-            unsigned              : 5;
+            unsigned                : 5;
         } lpcm;
 
         uint8_t maximum_bit_rate;       /* formats 2-8; = value * 8 kHz */
