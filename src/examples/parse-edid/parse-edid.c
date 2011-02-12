@@ -46,23 +46,6 @@
 
 #define ARRAY_SIZE(arr)                         (sizeof(arr) / sizeof((arr)[0]))
 
-static unsigned int
-get_block_count(FILE *edid)
-{
-    struct edid block0;
-    size_t retval;
-
-    if ((retval = fread(&block0, sizeof(block0), 1, edid)) != 1) {
-        if (feof(edid))
-            fprintf(stderr, "short read: edid data less than 1 block\n");
-        else
-            perror("fread");
-
-        return 0;
-    }
-
-    return block0.extensions + 1;
-}
 
 static void
 dump_edid(const struct edid * const edid)
@@ -877,7 +860,7 @@ main(int argc, char **argv)
 {
     FILE *edid = NULL;
     uint8_t *buffer = NULL;
-    unsigned int blocks;
+    long length = 0;
 
     if (argc != 2) {
         printf("usage: %s <edid data file>\n", argv[0]);
@@ -890,23 +873,18 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    blocks = get_block_count(edid);
-    if (!blocks) {
-        fclose(edid);
-        fprintf(stderr, "failed to read edid block0\n");
-        return EXIT_FAILURE;
-    }
+    fseek(edid, 0, SEEK_END);
+    length = ftell(edid);
+    fseek(edid, 0, SEEK_SET);
 
-    rewind(edid);
-
-    buffer = calloc(blocks, EDID_BLOCK_SIZE);
+    buffer = calloc(length, 1);
     if (!buffer) {
         fclose(edid);
         fprintf(stderr, "unable to allocate space for edid data\n");
         return EXIT_FAILURE;
     }
 
-    if (fread(buffer, EDID_BLOCK_SIZE, blocks, edid) != blocks) {
+    if (fread(buffer, 1, length, edid) != length) {
         perror("fread");
         free(buffer);
         fclose(edid);
