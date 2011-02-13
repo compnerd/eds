@@ -474,23 +474,27 @@ static void
 disp_cea861(const struct edid_extension * const ext)
 {
     const struct edid_detailed_timing_descriptor *dtd = NULL;
-    const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
+    const struct cea861_timing_block * const ctb =
+        (struct cea861_timing_block *) ext;
     const uint8_t offset = offsetof(struct cea861_timing_block, data);
     uint8_t index = 0, i;
 
     printf("CEA-861 Information\n");
     printf("  Revision number.......... %u\n",
            ctb->revision);
-    printf("  IT underscan............. %supported\n",
-           ctb->underscan_supported ? "S" : "Not s");
-    printf("  Basic audio.............. %supported\n",
-           ctb->basic_audio_supported ? "S" : "Not s");
-    printf("  YCbCr 4:4:4.............. %supported\n",
-           ctb->yuv_444_supported ? "S" : "Not s");
-    printf("  YCbCr 4:2:2.............. %supported\n",
-           ctb->yuv_422_supported ? "S" : "Not s");
-    printf("  Native formats........... %u\n",
-           ctb->native_dtds);
+
+    if (ctb->revision >= 2) {
+        printf("  IT underscan............. %supported\n",
+               ctb->underscan_supported ? "S" : "Not s");
+        printf("  Basic audio.............. %supported\n",
+               ctb->basic_audio_supported ? "S" : "Not s");
+        printf("  YCbCr 4:4:4.............. %supported\n",
+               ctb->yuv_444_supported ? "S" : "Not s");
+        printf("  YCbCr 4:2:2.............. %supported\n",
+               ctb->yuv_422_supported ? "S" : "Not s");
+        printf("  Native formats........... %u\n",
+               ctb->native_dtds);
+    }
 
     dtd = (struct edid_detailed_timing_descriptor *) ((uint8_t *) ctb + ctb->dtd_offset);
     for (i = 0; dtd->pixel_clock; i++, dtd++) {
