@@ -47,151 +47,76 @@
 #define ARRAY_SIZE(arr)                         (sizeof(arr) / sizeof((arr)[0]))
 
 
-static void
-dump_edid1(const struct edid * const edid)
+static inline void
+dump_section(const char * const name,
+             const uint8_t * const buffer,
+             const uint8_t offset,
+             const uint8_t length)
 {
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "header:",
-           edid->header[0], edid->header[1], edid->header[2],
-           edid->header[3], edid->header[4], edid->header[5],
-           edid->header[6], edid->header[7]);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "vendor/product identification:",
-           ((uint8_t *) &edid->manufacturer)[0],
-           ((uint8_t *) &edid->manufacturer)[1],
-           edid->product[0], edid->product[1],
-           edid->serial_number[0], edid->serial_number[1],
-           edid->serial_number[2], edid->serial_number[3],
-           edid->manufacture_week, edid->manufacture_year);
-    printf("%40s %02x %02x\n",
-           "edid structure version/revision:",
-           edid->version, edid->revision);
-    printf("%40s %02x %02x %02x %02x %02x\n",
-           "basic display parameters/features:",
-           edid->video_input_definition,
-           edid->maximum_horizontal_image_size,
-           edid->maximum_vertical_image_size,
-           edid->display_transfer_characteristics,
-           edid->feature_support);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "color characteristics:",
+    /*!  \todo remove magic number usage */
 
-           edid->red_x_low   << 6 | edid->red_y_low   << 4 |
-           edid->green_x_low << 2 | edid->green_y_low << 0,
+    const uint8_t *value = buffer + offset;
 
-           edid->blue_x_low  << 6 | edid->blue_y_low  << 4 |
-           edid->white_x_low << 2 | edid->white_y_low << 0,
+    printf("%33.33s: ", name);
 
-           edid->red_x, edid->red_y, edid->green_x, edid->green_y,
-           edid->blue_x, edid->blue_y, edid->white_x, edid->white_y);
-    printf("%40s %02x %02x %02x\n",
-           "established timings:",
-           ((uint8_t *) &edid->established_timings)[0],
-           ((uint8_t *) &edid->established_timings)[1],
-           edid->manufacturer_timings);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "standard timing identification:",
-           ((uint8_t *) &edid->standard_timing_id[0])[0],
-           ((uint8_t *) &edid->standard_timing_id[0])[1],
-           ((uint8_t *) &edid->standard_timing_id[1])[0],
-           ((uint8_t *) &edid->standard_timing_id[1])[1],
-           ((uint8_t *) &edid->standard_timing_id[2])[0],
-           ((uint8_t *) &edid->standard_timing_id[2])[1],
-           ((uint8_t *) &edid->standard_timing_id[3])[0],
-           ((uint8_t *) &edid->standard_timing_id[3])[1],
-           ((uint8_t *) &edid->standard_timing_id[4])[0],
-           ((uint8_t *) &edid->standard_timing_id[4])[1],
-           ((uint8_t *) &edid->standard_timing_id[5])[0],
-           ((uint8_t *) &edid->standard_timing_id[5])[1],
-           ((uint8_t *) &edid->standard_timing_id[6])[0],
-           ((uint8_t *) &edid->standard_timing_id[6])[1],
-           ((uint8_t *) &edid->standard_timing_id[7])[0],
-           ((uint8_t *) &edid->standard_timing_id[7])[1]);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "detailed timing 0:",
-           ((uint8_t *) &edid->detailed_timings[0])[0],
-           ((uint8_t *) &edid->detailed_timings[0])[1],
-           ((uint8_t *) &edid->detailed_timings[0])[2],
-           ((uint8_t *) &edid->detailed_timings[0])[3],
-           ((uint8_t *) &edid->detailed_timings[0])[4],
-           ((uint8_t *) &edid->detailed_timings[0])[5],
-           ((uint8_t *) &edid->detailed_timings[0])[6],
-           ((uint8_t *) &edid->detailed_timings[0])[7],
-           ((uint8_t *) &edid->detailed_timings[0])[8],
-           ((uint8_t *) &edid->detailed_timings[0])[9],
-           ((uint8_t *) &edid->detailed_timings[0])[10],
-           ((uint8_t *) &edid->detailed_timings[0])[11],
-           ((uint8_t *) &edid->detailed_timings[0])[12],
-           ((uint8_t *) &edid->detailed_timings[0])[13],
-           ((uint8_t *) &edid->detailed_timings[0])[14],
-           ((uint8_t *) &edid->detailed_timings[0])[15],
-           ((uint8_t *) &edid->detailed_timings[0])[16],
-           ((uint8_t *) &edid->detailed_timings[0])[17]);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "detailed timing 1:",
-           ((uint8_t *) &edid->detailed_timings[1])[0],
-           ((uint8_t *) &edid->detailed_timings[1])[1],
-           ((uint8_t *) &edid->detailed_timings[1])[2],
-           ((uint8_t *) &edid->detailed_timings[1])[3],
-           ((uint8_t *) &edid->detailed_timings[1])[4],
-           ((uint8_t *) &edid->detailed_timings[1])[5],
-           ((uint8_t *) &edid->detailed_timings[1])[6],
-           ((uint8_t *) &edid->detailed_timings[1])[7],
-           ((uint8_t *) &edid->detailed_timings[1])[8],
-           ((uint8_t *) &edid->detailed_timings[1])[9],
-           ((uint8_t *) &edid->detailed_timings[1])[10],
-           ((uint8_t *) &edid->detailed_timings[1])[11],
-           ((uint8_t *) &edid->detailed_timings[1])[12],
-           ((uint8_t *) &edid->detailed_timings[1])[13],
-           ((uint8_t *) &edid->detailed_timings[1])[14],
-           ((uint8_t *) &edid->detailed_timings[1])[15],
-           ((uint8_t *) &edid->detailed_timings[1])[16],
-           ((uint8_t *) &edid->detailed_timings[1])[17]);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "detailed timing 2:",
-           ((uint8_t *) &edid->detailed_timings[2])[0],
-           ((uint8_t *) &edid->detailed_timings[2])[1],
-           ((uint8_t *) &edid->detailed_timings[2])[2],
-           ((uint8_t *) &edid->detailed_timings[2])[3],
-           ((uint8_t *) &edid->detailed_timings[2])[4],
-           ((uint8_t *) &edid->detailed_timings[2])[5],
-           ((uint8_t *) &edid->detailed_timings[2])[6],
-           ((uint8_t *) &edid->detailed_timings[2])[7],
-           ((uint8_t *) &edid->detailed_timings[2])[8],
-           ((uint8_t *) &edid->detailed_timings[2])[9],
-           ((uint8_t *) &edid->detailed_timings[2])[10],
-           ((uint8_t *) &edid->detailed_timings[2])[11],
-           ((uint8_t *) &edid->detailed_timings[2])[12],
-           ((uint8_t *) &edid->detailed_timings[2])[13],
-           ((uint8_t *) &edid->detailed_timings[2])[14],
-           ((uint8_t *) &edid->detailed_timings[2])[15],
-           ((uint8_t *) &edid->detailed_timings[2])[16],
-           ((uint8_t *) &edid->detailed_timings[2])[17]);
-    printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-           "detailed timing 3:",
-           ((uint8_t *) &edid->detailed_timings[3])[0],
-           ((uint8_t *) &edid->detailed_timings[3])[1],
-           ((uint8_t *) &edid->detailed_timings[3])[2],
-           ((uint8_t *) &edid->detailed_timings[3])[3],
-           ((uint8_t *) &edid->detailed_timings[3])[4],
-           ((uint8_t *) &edid->detailed_timings[3])[5],
-           ((uint8_t *) &edid->detailed_timings[3])[6],
-           ((uint8_t *) &edid->detailed_timings[3])[7],
-           ((uint8_t *) &edid->detailed_timings[3])[8],
-           ((uint8_t *) &edid->detailed_timings[3])[9],
-           ((uint8_t *) &edid->detailed_timings[3])[10],
-           ((uint8_t *) &edid->detailed_timings[3])[11],
-           ((uint8_t *) &edid->detailed_timings[3])[12],
-           ((uint8_t *) &edid->detailed_timings[3])[13],
-           ((uint8_t *) &edid->detailed_timings[3])[14],
-           ((uint8_t *) &edid->detailed_timings[3])[15],
-           ((uint8_t *) &edid->detailed_timings[3])[16],
-           ((uint8_t *) &edid->detailed_timings[3])[17]);
-    printf("%40s %02x\n", "extensions:", edid->extensions);
-    printf("%40s %02x\n", "checksum:", edid->checksum);
+    for (uint8_t i = 0, l = 35; i < length; i++) {
+        if ((l += 3) > 89) {
+            printf("\b\n%35s", "");
+            l = 35;
+        }
+        printf("%02x ", *value++);
+    }
+
+    printf("\b\n");
+}
+
+static void
+dump_edid1(const uint8_t * const buffer)
+{
+    dump_section("header",                            buffer, 0x00, 0x08);
+    dump_section("vendor/product identification",     buffer, 0x08, 0x0a);
+    dump_section("edid struct version/revision",      buffer, 0x12, 0x02);
+    dump_section("basic display parameters/features", buffer, 0x14, 0x05);
+    dump_section("color characteristics",             buffer, 0x19, 0x0a);
+    dump_section("established timings",               buffer, 0x23, 0x03);
+    dump_section("standard timing identification",    buffer, 0x26, 0x10);
+    dump_section("detailed timing 0",                 buffer, 0x36, 0x12);
+    dump_section("detailed timing 1",                 buffer, 0x48, 0x12);
+    dump_section("detailed timing 2",                 buffer, 0x5a, 0x12);
+    dump_section("detailed timing 3",                 buffer, 0x6c, 0x12);
+    dump_section("extensions",                        buffer, 0x7e, 0x01);
+    dump_section("checksum",                          buffer, 0x7f, 0x01);
 
     printf("\n");
 }
+
+static void
+dump_cea861(const uint8_t * const buffer)
+{
+    const struct edid_detailed_timing_descriptor *dtd = NULL;
+    const struct cea861_timing_block * const ctb =
+        (struct cea861_timing_block *) buffer;
+    const uint8_t dof = offsetof(struct cea861_timing_block, data);
+
+    dump_section("cea extension header",  buffer, 0x00, 0x04);
+    dump_section("data block collection", buffer, 0x04, ctb->dtd_offset - dof);
+
+    dtd = (struct edid_detailed_timing_descriptor *) (buffer + ctb->dtd_offset);
+    for (uint8_t i = 0; dtd->pixel_clock; i++, dtd++) {
+        char *header = NULL;
+
+        asprintf(&header, "detailed timing descriptor %03u", i);
+        dump_section(header, (uint8_t *) dtd, 0x00, sizeof(*dtd));
+        free(header);
+    }
+
+    dump_section("padding",  buffer, (uint8_t *) dtd - buffer,
+                 dof + sizeof(ctb->data) - ((uint8_t *) dtd - buffer));
+    dump_section("checksum", buffer, 0x7f, 0x01);
+
+    printf("\n");
+}
+
 
 static inline double
 _edid_fraction(uint16_t value)
@@ -544,48 +469,6 @@ disp_edid1(const struct edid * const edid)
     printf("\n");
 }
 
-static void
-dump_cea861(const struct edid_extension * const ext)
-{
-    const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
-    const uint8_t offset = offsetof(struct cea861_timing_block, data);
-    const struct edid_detailed_timing_descriptor *dtd = NULL;
-    uint8_t i;
-
-    printf("%40s %02x %02x %02x %02x\n",
-           "cea extension header:",
-           ctb->tag, ctb->revision, ctb->dtd_offset, ext->extension_data[1]);
-
-    printf("%40s ", "data block collection:");
-    for (i = 0; i < ctb->dtd_offset - offset; i++) {
-        if (((i * 3) % 78) == 39)
-            printf("\n%40s ", "");
-        printf("%02x ", ctb->data[i]);
-    }
-    printf("\n");
-
-    dtd = (struct edid_detailed_timing_descriptor *) ((uint8_t *) ctb + ctb->dtd_offset);
-    for (i = 0; dtd->pixel_clock; i++, dtd++) {
-        const uint8_t * const data = (uint8_t *) dtd;
-
-        printf("%35s %03u: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
-               "detailed timing descriptor", i,
-               data[0x00], data[0x01], data[0x02], data[0x03], data[0x04],
-               data[0x05], data[0x06], data[0x07], data[0x08], data[0x09],
-               data[0x0a], data[0x0b], data[0x0c], data[0x0d], data[0x0e],
-               data[0x0f], data[0x10], data[0x11]);
-    }
-
-    printf("%40s ", "padding:");
-    for (i = sizeof(*dtd) * i + ctb->dtd_offset; i < sizeof(ctb->data); i++) {
-        if (((i * 3) % 78) == 39)
-            printf("\n%40s ", "");
-        printf("%02x ", ctb->data[i]);
-    }
-    printf("\n");
-
-    printf("%40s %02x", "checksum:", ctb->checksum);
-}
 
 static void
 disp_cea861(const struct edid_extension * const ext)
