@@ -479,6 +479,8 @@ disp_cea861(const struct edid_extension * const ext)
     const uint8_t offset = offsetof(struct cea861_timing_block, data);
     uint8_t index = 0, i;
 
+    /*! \todo handle invalid revision */
+
     printf("CEA-861 Information\n");
     printf("  Revision number.......... %u\n",
            ctb->revision);
@@ -499,6 +501,8 @@ disp_cea861(const struct edid_extension * const ext)
     dtd = (struct edid_detailed_timing_descriptor *) ((uint8_t *) ctb + ctb->dtd_offset);
     for (i = 0; dtd->pixel_clock; i++, dtd++) {
         char *string;
+
+        /*! \todo ensure that we are not overstepping bounds */
 
         string = _edid_timing_string(dtd);
         printf("  Detailed timing #%u....... %s\n", i + 1, string);
