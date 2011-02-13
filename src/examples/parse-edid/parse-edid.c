@@ -98,7 +98,9 @@ dump_cea861(const uint8_t * const buffer)
     const uint8_t dof = offsetof(struct cea861_timing_block, data);
 
     dump_section("cea extension header",  buffer, 0x00, 0x04);
-    dump_section("data block collection", buffer, 0x04, ctb->dtd_offset - dof);
+
+    if (ctb->dtd_offset - dof)
+        dump_section("data block collection", buffer, 0x04, ctb->dtd_offset - dof);
 
     dtd = (struct edid_detailed_timing_descriptor *) (buffer + ctb->dtd_offset);
     for (uint8_t i = 0; dtd->pixel_clock; i++, dtd++) {
@@ -677,31 +679,53 @@ disp_cea861(const struct edid_extension * const ext)
 
     printf("\n");
 
-    do {
-        const struct cea861_data_block_header * const header =
-            (struct cea861_data_block_header *) &ctb->data[index];
+    if (ctb->revision >= 3) {
+        do {
+            const struct cea861_data_block_header * const header =
+                (struct cea861_data_block_header *) &ctb->data[index];
 
-        switch (header->tag) {
-        case CEA861_DATA_BLOCK_TYPE_AUDIO:
-            disp_cea861_audio_data((struct cea861_audio_data_block *) header);
-            break;
-        case CEA861_DATA_BLOCK_TYPE_VIDEO:
-            disp_cea861_video_data((struct cea861_video_data_block *) header);
-            break;
-        case CEA861_DATA_BLOCK_TYPE_VENDOR_SPECIFIC:
-            disp_cea861_vendor_data((struct cea861_vendor_specific_data_block *) header);
-            break;
-        case CEA861_DATA_BLOCK_TYPE_SPEAKER_ALLOCATION:
-            disp_cea861_speaker_allocation_data((struct cea861_speaker_allocation_data_block *) header);
-            break;
-        default:
-            fprintf(stderr, "unknown CEA-861 data block type 0x%02x\n",
-                    header->tag);
-            break;
-        }
+            switch (header->tag) {
+            case CEA861_DATA_BLOCK_TYPE_AUDIO:
+                {
+                    const struct cea861_audio_data_block * const db =
+                        (struct cea861_audio_data_block *) header;
 
-        index = index + header->length + sizeof(*header);
-    } while (index < ctb->dtd_offset - offset);
+                    disp_cea861_audio_data(db);
+                }
+                break;
+            case CEA861_DATA_BLOCK_TYPE_VIDEO:
+                {
+                    const struct cea861_video_data_block * const db =
+                        (struct cea861_video_data_block *) header;
+
+                    disp_cea861_video_data(db);
+                }
+                break;
+            case CEA861_DATA_BLOCK_TYPE_VENDOR_SPECIFIC:
+                {
+                    const struct cea861_vendor_specific_data_block * const db =
+                        (struct cea861_vendor_specific_data_block *) header;
+
+                    disp_cea861_vendor_data(db);
+                }
+                break;
+            case CEA861_DATA_BLOCK_TYPE_SPEAKER_ALLOCATION:
+                {
+                    const struct cea861_speaker_allocation_data_block * const db =
+                        (struct cea861_speaker_allocation_data_block *) header;
+
+                    disp_cea861_speaker_allocation_data(db);
+                }
+                break;
+            default:
+                fprintf(stderr, "unknown CEA-861 data block type 0x%02x\n",
+                        header->tag);
+                break;
+            }
+
+            index = index + header->length + sizeof(*header);
+        } while (index < ctb->dtd_offset - offset);
+    }
 
     printf("\n");
 }
