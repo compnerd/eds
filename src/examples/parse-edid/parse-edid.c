@@ -858,9 +858,10 @@ dump_edid_data(const uint8_t * const data)
 int
 main(int argc, char **argv)
 {
-    FILE *edid = NULL;
     uint8_t *buffer = NULL;
+    FILE *edid = NULL;
     long length = 0;
+    int rv = EXIT_FAILURE;
 
     if (argc != 2) {
         printf("usage: %s <edid data file>\n", argv[0]);
@@ -869,8 +870,8 @@ main(int argc, char **argv)
 
     edid = fopen(argv[1], "rb");
     if (!edid) {
-        perror("fopen");
-        return EXIT_FAILURE;
+        fprintf(stderr, "unable to open EDID data: %m\n");
+        goto out;
     }
 
     fseek(edid, 0, SEEK_END);
@@ -879,23 +880,22 @@ main(int argc, char **argv)
 
     buffer = calloc(length, 1);
     if (!buffer) {
-        fclose(edid);
         fprintf(stderr, "unable to allocate space for edid data\n");
-        return EXIT_FAILURE;
+        goto out;
     }
 
     if (fread(buffer, 1, length, edid) != length) {
-        perror("fread");
-        free(buffer);
-        fclose(edid);
-        return EXIT_FAILURE;
+        fprintf(stderr, "unable to read EDID: %m\n");
+        goto out;
     }
 
-    fclose(edid);
-
     dump_edid_data(buffer);
+    rv = EXIT_SUCCESS;
 
+out:
+    if (edid)
+        fclose(edid);
     free(buffer);
-    return EXIT_SUCCESS;
+    return rv;
 }
 
