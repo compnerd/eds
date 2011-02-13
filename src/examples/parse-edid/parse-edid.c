@@ -32,7 +32,6 @@
 
 #include <math.h>
 #include <stdio.h>
-#include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,18 +117,6 @@ dump_cea861(const uint8_t * const buffer)
 }
 
 
-static inline double
-_edid_fraction(uint16_t value)
-{
-    double result = 0.0;
-
-    assert(~value & 0xfc00);    /* edid fraction is 10 bits */
-
-    for (uint8_t i = 0; value && (i < 10); i++, value >>= 1)
-        result = result + ((value & 0x1) * (1.0 / (1 << (10 - i))));
-
-    return result;
-}
 
 static inline const char * const
 _aspect_ratio(const double hres, const double vres)
@@ -335,20 +322,20 @@ disp_edid1(const struct edid * const edid)
            edid_gamma(edid));
 
     printf("  Red chromaticity......... Rx %0.3f - Ry %0.3f\n",
-           _edid_fraction(characteristics.red.x),
-           _edid_fraction(characteristics.red.y));
+           edid_decode_fixed_point(characteristics.red.x),
+           edid_decode_fixed_point(characteristics.red.y));
 
     printf("  Green chromaticity....... Gx %0.3f - Gy %0.3f\n",
-           _edid_fraction(characteristics.green.x),
-           _edid_fraction(characteristics.green.y));
+           edid_decode_fixed_point(characteristics.green.x),
+           edid_decode_fixed_point(characteristics.green.y));
 
     printf("  Blue chromaticity........ Bx %0.3f - By %0.3f\n",
-           _edid_fraction(characteristics.blue.x),
-           _edid_fraction(characteristics.blue.y));
+           edid_decode_fixed_point(characteristics.blue.x),
+           edid_decode_fixed_point(characteristics.blue.y));
 
     printf("  White point (default).... Wx %0.3f - Wy %0.3f\n",
-           _edid_fraction(characteristics.white.x),
-           _edid_fraction(characteristics.white.y));
+           edid_decode_fixed_point(characteristics.white.x),
+           edid_decode_fixed_point(characteristics.white.y));
 
 #if defined(DISPLAY_UNKNOWN)
     printf("  Additional descriptors... %s\n", NULL);

@@ -31,6 +31,7 @@
 #ifndef leds_edid_h
 #define leds_edid_h
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -439,6 +440,19 @@ edid_verify_checksum(const uint8_t * const block)
         checksum += block[i];
 
     return (checksum == 0);
+}
+
+static inline double
+edid_decode_fixed_point(uint16_t value)
+{
+    double result = 0.0;
+
+    assert(~value & 0xfc00);    /* edid fraction is 10 bits */
+
+    for (uint8_t i = 0; value && (i < 10); i++, value >>= 1)
+        result = result + ((value & 0x1) * (1.0 / (1 << (10 - i))));
+
+    return result;
 }
 
 #endif
