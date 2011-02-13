@@ -48,7 +48,7 @@
 
 
 static void
-dump_edid(const struct edid * const edid)
+dump_edid1(const struct edid * const edid)
 {
     printf("%40s %02x %02x %02x %02x %02x %02x %02x %02x\n",
            "header:",
@@ -189,6 +189,8 @@ dump_edid(const struct edid * const edid)
            ((uint8_t *) &edid->detailed_timings[3])[17]);
     printf("%40s %02x\n", "extensions:", edid->extensions);
     printf("%40s %02x\n", "checksum:", edid->checksum);
+
+    printf("\n");
 }
 
 static inline double
@@ -279,7 +281,7 @@ _edid_mode_string(const struct edid_detailed_timing_descriptor * const dtb)
 }
 
 static void
-parse_edid(const struct edid * const edid)
+disp_edid1(const struct edid * const edid)
 {
     char manufacturer[4] = {0};
     char monitor_model_name[14] = {0};
@@ -538,10 +540,12 @@ parse_edid(const struct edid * const edid)
         printf("  %4u x %4u%c @ %uHz - VESA STD\n",
                hres, vres, 'p', desc->refresh_rate + 60);
     }
+
+    printf("\n");
 }
 
 static void
-dump_cea_timing_block(const struct edid_extension * const ext)
+dump_cea861(const struct edid_extension * const ext)
 {
     const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
     const uint8_t offset = offsetof(struct cea861_timing_block, data);
@@ -584,7 +588,7 @@ dump_cea_timing_block(const struct edid_extension * const ext)
 }
 
 static void
-parse_cea_timing_block(const struct edid_extension * const ext)
+disp_cea861(const struct edid_extension * const ext)
 {
     const struct edid_detailed_timing_descriptor *dtd = NULL;
     const struct cea861_timing_block * const ctb = (struct cea861_timing_block *) ext;
@@ -806,51 +810,41 @@ parse_cea_timing_block(const struct edid_extension * const ext)
     } while (index < ctb->dtd_offset - offset);
 }
 
+
+static const struct edid_extension_handler {
+    void (* const hex_dump)(const uint8_t * const);
+    void (* const ext_disp)(const struct edid_extension * const);
+} edid_extension_handlers[] = {
+    [EDID_EXTENSION_CEA] = { dump_cea861, disp_cea861 },
+};
+
 static void
-dump_edid_data(const uint8_t * const data)
+parse_edid(const uint8_t * const data)
 {
-    uint8_t i;
     const struct edid * const edid = (struct edid *) data;
     const struct edid_extension * const extensions =
         (struct edid_extension *) (data + sizeof(*edid));
 
-    dump_edid(edid);
-    printf("\n");
-    parse_edid(edid);
+    dump_edid1((uint8_t *) edid);
+    disp_edid1(edid);
 
-    printf("\n");
+    for (uint8_t i = 0; i < edid->extensions; i++) {
+        const struct edid_extension * const extension = &extensions[i];
+        const struct edid_extension_handler * const handler =
+            &edid_extension_handlers[extension->tag];
 
-    for (i = 0; i < edid->extensions; i++) {
-        switch (extensions[i].tag) {
-        case EDID_EXTENSION_TIMING:
-            printf("edid block %u is an extension block (type: %#04x)\n",
-                   i + 1, extensions[i].tag);
-            break;
-        case EDID_EXTENSION_CEA:
-            dump_cea_timing_block(&extensions[i]);
-            printf("\n");
-            parse_cea_timing_block(&extensions[i]);
-            break;
-        case EDID_EXTENSION_VTB:
-        case EDID_EXTENSION_EDID_2_0:
-        case EDID_EXTENSION_DI:
-        case EDID_EXTENSION_LS:
-        case EDID_EXTENSION_MI:
-        case EDID_EXTENSION_DTCDB_1:
-        case EDID_EXTENSION_DTCDB_2:
-        case EDID_EXTENSION_DTCDB_3:
-        case EDID_EXTENSION_DDDB:
-            printf("edid block %u is an extension block (type: %#04x)\n",
-                   i + 1, extensions[i].tag);
-            break;
-        case EDID_EXTENSION_BLOCK_MAP:
-            printf("edid block %u is a block map\n", i + 1);
-            break;
-        default:
-            printf("WARNING: Unknown extension %#04x at block %u\n",
-                   extensions[i].tag, i + 1);
-            break;
+        if (!handler) {
+            fprintf(stderr,
+                    "WARNING: block %u contains unknown extension (%#04x)\n",
+                    i, extensions[i].tag);
+            continue;
         }
+
+        if (handler->hex_dump)
+            (*handler->hex_dump)((uint8_t *) extension);
+
+        if (handler->ext_disp)
+            (*handler->ext_disp)(extension);
     }
 }
 
@@ -888,7 +882,7 @@ main(int argc, char **argv)
         goto out;
     }
 
-    dump_edid_data(buffer);
+    parse_edid(buffer);
     rv = EXIT_SUCCESS;
 
 out:
