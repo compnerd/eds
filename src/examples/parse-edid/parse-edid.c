@@ -43,8 +43,6 @@
 #define CM_2_MM(cm)                             ((cm) * 10)
 #define CM_2_IN(cm)                             ((cm) * 0.3937)
 
-#define ARRAY_SIZE(arr)                         (sizeof(arr) / sizeof((arr)[0]))
-
 
 static inline void
 dump_section(const char * const name,
@@ -218,33 +216,34 @@ disp_edid1(const struct edid * const edid)
 
 
     for (i = 0; i < ARRAY_SIZE(edid->detailed_timings); i++) {
-        const struct edid_monitor_descriptor * const desc =
+        const struct edid_monitor_descriptor * const mon =
             &edid->detailed_timings[i].monitor;
 
-        if (desc->flag0 != 0x0000 || desc->flag1 != 0x00 || desc->flag2 != 0x00)
+        if (!edid_detailed_timing_is_monitor_descriptor(edid, i))
             continue;
 
-        switch (desc->tag) {
+        switch (mon->tag) {
+        case EDID_MONTIOR_DESCRIPTOR_MANUFACTURER_DEFINED:
         case EDID_MONITOR_DESCRIPTOR_ASCII_STRING:
             /* This is an arbitrary string, unless we can identify it, just
                silently ignore it. */
             break;
         case EDID_MONITOR_DESCRIPTOR_MONITOR_NAME:
-            strncpy(monitor_model_name, (char *) desc->data,
+            strncpy(monitor_model_name, (char *) mon->data,
                     sizeof(monitor_model_name) - 1);
             *strchrnul(monitor_model_name, '\n') = '\0';
             break;
         case EDID_MONITOR_DESCRIPTOR_MONITOR_RANGE_LIMITS:
-            monitor_range_limits = (struct edid_monitor_range_limits *) &desc->data;
+            monitor_range_limits = (struct edid_monitor_range_limits *) &mon->data;
             break;
         case EDID_MONITOR_DESCRIPTOR_MONITOR_SERIAL_NUMBER:
-            strncpy(monitor_serial_number, (char *) desc->data,
+            strncpy(monitor_serial_number, (char *) mon->data,
                     sizeof(monitor_serial_number) - 1);
             *strchrnul(monitor_serial_number, '\n') = '\0';
             break;
         default:
             fprintf(stderr, "unknown monitor descriptor type 0x%02x\n",
-                    desc->tag);
+                    mon->tag);
             break;
         }
     }

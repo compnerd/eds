@@ -35,10 +35,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define EDID_I2C_DDC_DATA_ADDRESS                       (0x50)
+#define EDID_I2C_DDC_DATA_ADDRESS               (0x50)
 
-#define EDID_BLOCK_SIZE                                 (0x80)
-#define EDID_MAX_EXTENSIONS                             (0xfe)
+#define EDID_BLOCK_SIZE                         (0x80)
+#define EDID_MAX_EXTENSIONS                     (0xfe)
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(arr)                         (sizeof(arr) / sizeof(arr[0]))
+#endif
 
 
 static const uint8_t EDID_HEADER[] = { 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00 };
@@ -93,6 +97,7 @@ enum edid_stereo_mode {
 };
 
 enum edid_monitor_descriptor_type {
+    EDID_MONTIOR_DESCRIPTOR_MANUFACTURER_DEFINED        = 0x0f,
     EDID_MONITOR_DESCRIPTOR_STANDARD_TIMING_IDENTIFIERS = 0xfa,
     EDID_MONITOR_DESCRIPTOR_COLOR_POINT                 = 0xfb,
     EDID_MONITOR_DESCRIPTOR_MONITOR_NAME                = 0xfc,
@@ -379,6 +384,18 @@ static inline double
 edid_gamma(const struct edid * const edid)
 {
     return (edid->display_transfer_characteristics + 100) / 100.0;
+}
+
+static inline bool
+edid_detailed_timing_is_monitor_descriptor(const struct edid * const edid,
+                                           const uint8_t timing)
+{
+    const struct edid_monitor_descriptor * const mon =
+        &edid->detailed_timings[timing].monitor;
+
+    assert(timing < ARRAY_SIZE(edid->detailed_timings));
+
+    return mon->flag0 == 0x0000 && mon->flag1 == 0x00 && mon->flag2 == 0x00;
 }
 
 
