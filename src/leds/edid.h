@@ -236,6 +236,8 @@ struct __attribute__ (( packed )) edid_monitor_descriptor {
     uint8_t  data[13];
 };
 
+typedef char edid_monitor_descriptor_string[sizeof(((struct edid_monitor_descriptor *)0)->data) + 1];
+
 struct __attribute__ (( packed )) edid_monitor_range_limits {
     uint8_t  minimum_vertical_rate;             /* Hz */
     uint8_t  maximum_vertical_rate;             /* Hz */

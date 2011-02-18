@@ -195,10 +195,11 @@ _edid_mode_string(const struct edid_detailed_timing_descriptor * const dtb)
 static void
 disp_edid1(const struct edid * const edid)
 {
-    char manufacturer[4] = {0};
-    char monitor_model_name[14] = {0};
-    char monitor_serial_number[14] = {0};
     const struct edid_monitor_range_limits *monitor_range_limits = NULL;
+    edid_monitor_descriptor_string monitor_serial_number = {0};
+    edid_monitor_descriptor_string monitor_model_name = {0};
+    char manufacturer[4] = {0};
+
     struct edid_color_characteristics_data characteristics;
     const uint8_t vlen = edid->maximum_vertical_image_size;
     const uint8_t hlen = edid->maximum_horizontal_image_size;
