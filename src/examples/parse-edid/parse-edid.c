@@ -117,20 +117,21 @@ dump_cea861(const uint8_t * const buffer)
 }
 
 
-
 static inline const char * const
-_aspect_ratio(const double hres, const double vres)
+_aspect_ratio(const uint16_t hres, const uint16_t vres)
 {
-    const double ratio = hres / vres;
+#define HAS_RATIO_OF(x, y)  (hres == (vres * (x) / (y)) && !((vres * (x)) % (y)))
 
-    if (ratio == (16.0 / 10.0))
+    if (HAS_RATIO_OF(16, 10))
         return "16:10";
-    if (ratio == (4.0 / 3.0))
+    if (HAS_RATIO_OF(4, 3))
         return "4:3";
-    if (ratio == (5.0 / 4.0))
+    if (HAS_RATIO_OF(5, 4))
         return "5:4";
-    if (ratio == (16.0 / 9.0))
+    if (HAS_RATIO_OF(16, 9))
         return "16:9";
+
+#undef HAS_RATIO
 
     return "unknown";
 }
