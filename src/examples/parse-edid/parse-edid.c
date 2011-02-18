@@ -260,8 +260,9 @@ disp_edid1(const struct edid * const edid)
     printf("  Product code............. %u\n",
            *(uint16_t *) edid->product);
 
-    printf("  Product serial........... %u\n",
-           *(uint32_t *) edid->serial_number);
+    if (*(uint32_t *) edid->serial_number)
+        printf("  Module serial number..... %u\n",
+               *(uint32_t *) edid->serial_number);
 
 #if defined(DISPLAY_UNKNOWN)
     printf("  Plug and Play ID......... %s\n", NULL);
