@@ -199,6 +199,7 @@ disp_edid1(const struct edid * const edid)
     const struct edid_monitor_range_limits *monitor_range_limits = NULL;
     edid_monitor_descriptor_string monitor_serial_number = {0};
     edid_monitor_descriptor_string monitor_model_name = {0};
+    bool has_ascii_string = false;
     char manufacturer[4] = {0};
 
     struct edid_color_characteristics_data characteristics;
@@ -226,9 +227,10 @@ disp_edid1(const struct edid * const edid)
 
         switch (mon->tag) {
         case EDID_MONTIOR_DESCRIPTOR_MANUFACTURER_DEFINED:
+            /* This is arbitrary data, just silently ignore it. */
+            break;
         case EDID_MONITOR_DESCRIPTOR_ASCII_STRING:
-            /* This is an arbitrary string, unless we can identify it, just
-               silently ignore it. */
+            has_ascii_string = true;
             break;
         case EDID_MONITOR_DESCRIPTOR_MONITOR_NAME:
             strncpy(monitor_model_name, (char *) mon->data,
@@ -316,6 +318,29 @@ disp_edid1(const struct edid * const edid)
 #endif
 
     printf("\n");
+
+    if (has_ascii_string) {
+        edid_monitor_descriptor_string string = {0};
+
+        printf("General purpose ASCII string\n");
+
+        for (i = 0; i < ARRAY_SIZE(edid->detailed_timings); i++) {
+            const struct edid_monitor_descriptor * const mon =
+                &edid->detailed_timings[i].monitor;
+
+            if (!edid_detailed_timing_is_monitor_descriptor(edid, i))
+                continue;
+
+            if (mon->tag == EDID_MONITOR_DESCRIPTOR_ASCII_STRING) {
+                strncpy(string, (char *) mon->data, sizeof(string) - 1);
+                *strchrnul(string, '\n') = '\0';
+
+                printf("  ASCII string............. %s\n", string);
+            }
+        }
+
+        printf("\n");
+    }
 
     printf("Color characteristics\n");
 
