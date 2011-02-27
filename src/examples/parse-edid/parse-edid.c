@@ -274,8 +274,10 @@ disp_edid1(const struct edid * const edid)
     printf("  Serial number............ %s\n",
            *monitor_serial_number ? monitor_serial_number : "n/a");
 
-    printf("  Manufacture date......... %u, ISO week %u\n",
-           edid->manufacture_year + 1990, edid->manufacture_week);
+    printf("  Manufacture date......... %u", edid->manufacture_year + 1990);
+    if (edid->manufacture_week <= 52)
+        printf(", ISO week %u", edid->manufacture_week);
+    printf("\n");
 
     printf("  EDID revision............ %u.%u\n",
            edid->version, edid->revision);
