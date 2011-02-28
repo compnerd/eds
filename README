@@ -1,6 +1,6 @@
 <!-- vim: set ft=mkd ts=2 sw=2 tw=80 spell spelllang=en : -->
 
-leds is a library of EDID data structure definitions as well as a small set of
+eds is a library of EDID data structure definitions as well as a small set of
 utility functions.  It is designed to be used in userspace and kernelspace
 application and thus relies on as few library methods as possible for the
 utility functions.
