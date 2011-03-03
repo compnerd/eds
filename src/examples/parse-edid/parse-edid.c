@@ -464,7 +464,8 @@ disp_edid1(const struct edid * const edid)
         printf("  %4u x %4u%c @ %uHz - VESA STD\n",
                edid_timing_horizontal_resolution(desc),
                edid_timing_vertical_resolution(desc),
-               'p', desc->refresh_rate + 60);
+               'p',
+               edid_timing_refresh_rate(desc));
     }
 
     printf("\n");
