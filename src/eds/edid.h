@@ -288,6 +288,12 @@ edid_timing_vertical_resolution(const struct edid_standard_timing_descriptor * c
     return hres;
 }
 
+const inline uint32_t
+edid_timing_refresh_rate(const struct edid_standard_timing_descriptor * const desc)
+{
+    return (desc->refresh_rate + 60);
+}
+
 
 struct __attribute__ (( packed )) edid {
     /* header information */
