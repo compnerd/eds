@@ -28,8 +28,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef leds_cea861_h
-#define leds_cea861_h
+#ifndef eds_cea861_h
+#define eds_cea861_h
 
 #define CEA861_NO_DTDS_PRESENT                          (0x04)
 

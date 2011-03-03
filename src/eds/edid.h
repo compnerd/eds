@@ -28,8 +28,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef leds_edid_h
-#define leds_edid_h
+#ifndef eds_edid_h
+#define eds_edid_h
 
 #include <assert.h>
 #include <stdint.h>

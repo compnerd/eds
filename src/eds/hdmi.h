@@ -28,10 +28,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef leds_hdmi_h
-#define leds_hdmi_h
+#ifndef eds_hdmi_h
+#define eds_hdmi_h
 
-#include <cea861.h>
+#include "cea861.h"
 
 /*! \todo figure out a better way to determine the offsets */
 #define HDMI_VSDB_EXTENSION_FLAGS_OFFSET        (0x06)

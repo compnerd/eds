@@ -36,9 +36,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <leds/edid.h>
-#include <leds/hdmi.h>
-#include <leds/cea861.h>
+#include <eds/edid.h>
+#include <eds/hdmi.h>
+#include <eds/cea861.h>
 
 #define CM_2_MM(cm)                             ((cm) * 10)
 #define CM_2_IN(cm)                             ((cm) * 0.3937)
