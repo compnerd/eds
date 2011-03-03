@@ -140,17 +140,17 @@ static inline char *
 _edid_timing_string(const struct edid_detailed_timing_descriptor * const dtb)
 {
     char *timing = NULL;
-    const uint16_t hres = edid_timing_horizontal_active(dtb);
-    const uint16_t vres = edid_timing_vertical_active(dtb);
-    const uint32_t htotal = hres + edid_timing_horizontal_blanking(dtb);
-    const uint32_t vtotal = vres + edid_timing_vertical_blanking(dtb);
+    const uint16_t hres = edid_detailed_timing_horizontal_active(dtb);
+    const uint16_t vres = edid_detailed_timing_vertical_active(dtb);
+    const uint32_t htotal = hres + edid_detailed_timing_horizontal_blanking(dtb);
+    const uint32_t vtotal = vres + edid_detailed_timing_vertical_blanking(dtb);
 
     asprintf(&timing,
              "%ux%u%c at %.fHz (%s)",
              hres,
              vres,
              dtb->interlaced ? 'i' : 'p',
-             (double) edid_timing_pixel_clock(dtb) / (vtotal * htotal),
+             (double) edid_detailed_timing_pixel_clock(dtb) / (vtotal * htotal),
              _aspect_ratio(hres, vres));
 
     return timing;
@@ -160,11 +160,11 @@ static inline char *
 _edid_mode_string(const struct edid_detailed_timing_descriptor * const dtb)
 {
     char *modestr = NULL;
-    const uint16_t xres = edid_timing_horizontal_active(dtb);
-    const uint16_t yres = edid_timing_vertical_active(dtb);
-    const uint32_t pixclk = edid_timing_pixel_clock(dtb);
-    const uint16_t lower_margin = edid_timing_vertical_sync_offset(dtb);
-    const uint16_t right_margin = edid_timing_horizontal_sync_offset(dtb);
+    const uint16_t xres = edid_detailed_timing_horizontal_active(dtb);
+    const uint16_t yres = edid_detailed_timing_vertical_active(dtb);
+    const uint32_t pixclk = edid_detailed_timing_pixel_clock(dtb);
+    const uint16_t lower_margin = edid_detailed_timing_vertical_sync_offset(dtb);
+    const uint16_t right_margin = edid_detailed_timing_horizontal_sync_offset(dtb);
 
     asprintf(&modestr,
              "\"%ux%u\" %.3f %u %u %u %u %u %u %u %u %chsync %cvsync",
@@ -177,14 +177,14 @@ _edid_mode_string(const struct edid_detailed_timing_descriptor * const dtb)
              /* horizontal timings */
              xres,
              xres + right_margin,
-             xres + right_margin + edid_timing_horizontal_sync_pulse_width(dtb),
-             xres + edid_timing_horizontal_blanking(dtb),
+             xres + right_margin + edid_detailed_timing_horizontal_sync_pulse_width(dtb),
+             xres + edid_detailed_timing_horizontal_blanking(dtb),
 
              /* vertical timings */
              yres,
              yres + lower_margin,
-             yres + lower_margin + edid_timing_vertical_sync_pulse_width(dtb),
-             yres + edid_timing_vertical_blanking(dtb),
+             yres + lower_margin + edid_detailed_timing_vertical_sync_pulse_width(dtb),
+             yres + edid_detailed_timing_vertical_blanking(dtb),
 
              /* sync direction */
              dtb->signal_pulse_polarity ? '+' : '-',
@@ -462,10 +462,10 @@ disp_edid1(const struct edid * const edid)
             continue;
 
         printf("  %4u x %4u%c @ %uHz - VESA STD\n",
-               edid_timing_horizontal_resolution(desc),
-               edid_timing_vertical_resolution(desc),
+               edid_standard_timing_horizontal_active(desc),
+               edid_standard_timing_vertical_active(desc),
                'p',
-               edid_timing_refresh_rate(desc));
+               edid_standard_timing_refresh_rate(desc));
     }
 
     printf("\n");

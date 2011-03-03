@@ -156,73 +156,73 @@ struct __attribute__ (( packed )) edid_detailed_timing_descriptor {
 };
 
 static inline uint32_t
-edid_timing_pixel_clock(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_pixel_clock(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return dtb->pixel_clock * 10000;
 }
 
 static inline uint16_t
-edid_timing_horizontal_blanking(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_horizontal_blanking(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->horizontal_blanking_hi << 8) | dtb->horizontal_blanking_lo;
 }
 
 static inline uint16_t
-edid_timing_horizontal_active(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_horizontal_active(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->horizontal_active_hi << 8) | dtb->horizontal_active_lo;
 }
 
 static inline uint16_t
-edid_timing_vertical_blanking(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_vertical_blanking(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->vertical_blanking_hi << 8) | dtb->vertical_blanking_lo;
 }
 
 static inline uint16_t
-edid_timing_vertical_active(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_vertical_active(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->vertical_active_hi << 8) | dtb->vertical_active_lo;
 }
 
 static inline uint8_t
-edid_timing_vertical_sync_offset(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_vertical_sync_offset(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->vertical_sync_offset_hi << 4) | dtb->vertical_sync_offset_lo;
 }
 
 static inline uint8_t
-edid_timing_vertical_sync_pulse_width(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_vertical_sync_pulse_width(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->vertical_sync_pulse_width_hi << 4) | dtb->vertical_sync_pulse_width_lo;
 }
 
 static inline uint8_t
-edid_timing_horizontal_sync_offset(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_horizontal_sync_offset(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->horizontal_sync_offset_hi << 4) | dtb->horizontal_sync_offset_lo;
 }
 
 static inline uint8_t
-edid_timing_horizontal_sync_pulse_width(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_horizontal_sync_pulse_width(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->horizontal_sync_pulse_width_hi << 4) | dtb->horizontal_sync_pulse_width_lo;
 }
 
 static inline uint16_t
-edid_timing_horizontal_image_size(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_horizontal_image_size(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->horizontal_image_size_hi << 8) | dtb->horizontal_image_size_lo;
 }
 
 static inline uint16_t
-edid_timing_vertical_image_size(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_vertical_image_size(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->vertical_image_size_hi << 8) | dtb->vertical_image_size_lo;
 }
 
 static inline uint8_t
-edid_timing_stereo_mode(const struct edid_detailed_timing_descriptor * const dtb)
+edid_detailed_timing_stereo_mode(const struct edid_detailed_timing_descriptor * const dtb)
 {
     return (dtb->stereo_mode_hi << 2 | dtb->stereo_mode_lo);
 }
@@ -237,6 +237,7 @@ struct __attribute__ (( packed )) edid_monitor_descriptor {
 };
 
 typedef char edid_monitor_descriptor_string[sizeof(((struct edid_monitor_descriptor *)0)->data) + 1];
+
 
 struct __attribute__ (( packed )) edid_monitor_range_limits {
     uint8_t  minimum_vertical_rate;             /* Hz */
@@ -264,15 +265,15 @@ struct __attribute__ (( packed )) edid_standard_timing_descriptor {
 };
 
 const inline uint32_t
-edid_timing_horizontal_resolution(const struct edid_standard_timing_descriptor * const desc)
+edid_standard_timing_horizontal_active(const struct edid_standard_timing_descriptor * const desc)
 {
     return ((desc->horizontal_active_pixels + 31) << 3);
 }
 
 const inline uint32_t
-edid_timing_vertical_resolution(const struct edid_standard_timing_descriptor * const desc)
+edid_standard_timing_vertical_active(const struct edid_standard_timing_descriptor * const desc)
 {
-    const uint32_t hres = edid_timing_horizontal_resolution(desc);
+    const uint32_t hres = edid_standard_timing_horizontal_active(desc);
 
     switch (desc->image_aspect_ratio) {
     case EDID_ASPECT_RATIO_16_10:
@@ -289,7 +290,7 @@ edid_timing_vertical_resolution(const struct edid_standard_timing_descriptor * c
 }
 
 const inline uint32_t
-edid_timing_refresh_rate(const struct edid_standard_timing_descriptor * const desc)
+edid_standard_timing_refresh_rate(const struct edid_standard_timing_descriptor * const desc)
 {
     return (desc->refresh_rate + 60);
 }
