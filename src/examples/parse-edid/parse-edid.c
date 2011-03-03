@@ -458,30 +458,13 @@ disp_edid1(const struct edid * const edid)
         const struct edid_standard_timing_descriptor * const desc =
             &edid->standard_timing_id[i];
 
-        uint16_t hres, vres;
-
         if (!memcmp(desc, EDID_STANDARD_TIMING_DESCRIPTOR_INVALID, sizeof(*desc)))
             continue;
 
-        hres = (desc->horizontal_active_pixels + 31) << 3;
-
-        switch (desc->image_aspect_ratio) {
-        case EDID_ASPECT_RATIO_16_10:
-            vres = (hres * (10.0 / 16.0));
-            break;
-        case EDID_ASPECT_RATIO_4_3:
-            vres = (hres * (3.0 / 4.0));
-            break;
-        case EDID_ASPECT_RATIO_5_4:
-            vres = (hres * (4.0 / 5.0));
-            break;
-        case EDID_ASPECT_RATIO_16_9:
-            vres = (hres * (9.0 / 16.0));
-            break;
-        }
-
         printf("  %4u x %4u%c @ %uHz - VESA STD\n",
-               hres, vres, 'p', desc->refresh_rate + 60);
+               edid_timing_horizontal_resolution(desc),
+               edid_timing_vertical_resolution(desc),
+               'p', desc->refresh_rate + 60);
     }
 
     printf("\n");
