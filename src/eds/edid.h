@@ -263,6 +263,31 @@ struct __attribute__ (( packed )) edid_standard_timing_descriptor {
     unsigned image_aspect_ratio : 2;
 };
 
+const inline uint32_t
+edid_timing_horizontal_resolution(const struct edid_standard_timing_descriptor * const desc)
+{
+    return ((desc->horizontal_active_pixels + 31) << 3);
+}
+
+const inline uint32_t
+edid_timing_vertical_resolution(const struct edid_standard_timing_descriptor * const desc)
+{
+    const uint32_t hres = edid_timing_horizontal_resolution(desc);
+
+    switch (desc->image_aspect_ratio) {
+    case EDID_ASPECT_RATIO_16_10:
+        return ((hres * 10) >> 4);
+    case EDID_ASPECT_RATIO_4_3:
+        return ((hres * 3) >> 2);
+    case EDID_ASPECT_RATIO_5_4:
+        return ((hres << 2) / 5);
+    case EDID_ASPECT_RATIO_16_9:
+        return ((hres * 9) >> 4);
+    }
+
+    return hres;
+}
+
 
 struct __attribute__ (( packed )) edid {
     /* header information */
