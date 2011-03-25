@@ -10,11 +10,11 @@ src_examples_parse_edid_parse_edid_CFLAGS = -I $(top_srcdir)/src     \
 					      $(NULL)
 endif
 
-includedir = @includedir@/eds
-include_HEADERS = src/eds/cea861.h \
-		  src/eds/edid.h   \
-		  src/eds/hdmi.h   \
-		  $(NULL)
+edsincludedir = $(includedir)/eds
+edsinclude_HEADERS = src/eds/cea861.h \
+		     src/eds/edid.h   \
+		     src/eds/hdmi.h   \
+		     $(NULL)
 
 MAINTAINERCLEANFILES = aclocal.m4       \
 		       configure        \
