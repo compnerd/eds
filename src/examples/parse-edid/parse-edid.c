@@ -43,6 +43,8 @@
 #define CM_2_MM(cm)                             ((cm) * 10)
 #define CM_2_IN(cm)                             ((cm) * 0.3937)
 
+#define HZ_2_MHZ(hz)                            ((hz) / 1000000)
+
 
 static inline void
 dump_section(const char * const name,
@@ -171,8 +173,8 @@ _edid_mode_string(const struct edid_detailed_timing_descriptor * const dtb)
              /* resolution */
              xres, yres,
 
-             /* doct clock frequence (MHz) */
-             pixclk / 1000000.0,
+             /* dot clock frequence (MHz) */
+             HZ_2_MHZ((double) pixclk),
 
              /* horizontal timings */
              xres,
