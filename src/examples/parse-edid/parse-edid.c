@@ -796,8 +796,7 @@ main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    edid = fopen(argv[1], "rb");
-    if (!edid) {
+    if ((edid = fopen(argv[1], "rb")) == NULL) {
         fprintf(stderr, "unable to open EDID data: %m\n");
         goto out;
     }
@@ -806,8 +805,7 @@ main(int argc, char **argv)
     length = ftell(edid);
     fseek(edid, 0, SEEK_SET);
 
-    buffer = calloc(length, 1);
-    if (!buffer) {
+    if ((buffer = calloc(length, 1)) == NULL) {
         fprintf(stderr, "unable to allocate space for edid data\n");
         goto out;
     }
@@ -823,7 +821,9 @@ main(int argc, char **argv)
 out:
     if (edid)
         fclose(edid);
+
     free(buffer);
+
     return rv;
 }
 
