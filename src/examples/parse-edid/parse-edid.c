@@ -748,7 +748,7 @@ disp_cea861(const struct edid_extension * const ext)
 
 static const struct edid_extension_handler {
     void (* const hex_dump)(const uint8_t * const);
-    void (* const ext_disp)(const struct edid_extension * const);
+    void (* const inf_disp)(const struct edid_extension * const);
 } edid_extension_handlers[] = {
     [EDID_EXTENSION_CEA] = { dump_cea861, disp_cea861 },
 };
@@ -778,8 +778,8 @@ parse_edid(const uint8_t * const data)
         if (handler->hex_dump)
             (*handler->hex_dump)((uint8_t *) extension);
 
-        if (handler->ext_disp)
-            (*handler->ext_disp)(extension);
+        if (handler->inf_disp)
+            (*handler->inf_disp)(extension);
     }
 }
 
