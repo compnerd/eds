@@ -40,10 +40,6 @@
 #define EDID_BLOCK_SIZE                         (0x80)
 #define EDID_MAX_EXTENSIONS                     (0xfe)
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(arr)                         (sizeof(arr) / sizeof(arr[0]))
-#endif
-
 
 static const uint8_t EDID_HEADER[] = { 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00 };
 static const uint8_t EDID_STANDARD_TIMING_DESCRIPTOR_INVALID[] = { 0x01, 0x01 };

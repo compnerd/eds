@@ -3,11 +3,12 @@
 if WITH_EXAMPLES
 noinst_PROGRAMS = src/examples/parse-edid/parse-edid
 
-src_examples_parse_edid_parse_edid_SOURCES = src/examples/parse-edid/parse-edid.c \
+src_examples_parse_edid_parse_edid_CFLAGS = -I $(top_srcdir)/src                    \
+					    -I $(top_srcdir)/src/eds                \
+					    -include $(top_srcdir)/src/eds/macros.h \
+					    $(NULL)
+src_examples_parse_edid_parse_edid_SOURCES = src/examples/parse-edid/parse-edid.c   \
 					     $(NULL)
-src_examples_parse_edid_parse_edid_CFLAGS = -I $(top_srcdir)/src     \
-					    -I $(top_srcdir)/src/eds \
-					      $(NULL)
 endif
 
 edsincludedir = $(includedir)/eds
